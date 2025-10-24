@@ -126,9 +126,12 @@
 
 ### 3.5 技术实现
 
-- **模型选择**: GPT-4 / 通义千问大语言模型
+- **API 接口**: OpenRouter API (https://openrouter.ai/)
+- **模型选择**: 通过 OpenRouter 访问 Claude 3.5 Sonnet / GPT-4 等大语言模型
 - **提示工程**: 设计专门的Prompt模板确保输出格式一致性
 - **验证机制**: 检查输出JSON的完整性和有效性
+
+OpenRouter 提供了统一的 API 接口访问多种 AI 模型，简化了模型切换和管理。
 
 ## 4. 阶段二：图像生成
 
@@ -195,10 +198,14 @@
 
 ### 4.5 技术实现
 
-- **图像生成模型**: Stable Diffusion XL / DALL-E 3
-- **一致性保持**: ControlNet / LoRA微调
+- **API 接口**: OpenRouter API (https://openrouter.ai/)
+- **提示词生成**: 通过 OpenRouter 访问 Claude 3.5 Sonnet / GPT-4 生成优化的图像提示词
+- **图像生成模型**: 通过 OpenRouter 访问 Stable Diffusion XL / DALL-E 3 等图像生成模型
+- **一致性保持**: ControlNet / LoRA微调（后续阶段实现）
 - **存储方案**: 七牛云对象存储
 - **缓存策略**: Redis缓存生成参数，支持重新生成
+
+阶段二当前实现重点是生成高质量的图像提示词（Prompt），为后续实际图像生成做准备。
 
 ## 5. 阶段三：视频合成
 
