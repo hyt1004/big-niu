@@ -17,10 +17,10 @@ function App() {
     random_fine_tune: false,
     random_composition: false,
     random_shot: false,
-    atmosphere: 50,
-    distance: 50,
-    realism: 50,
-    dynamic: 50,
+    atmosphere: 0.5,
+    distance: 0.5,
+    realism: 0.5,
+    dynamic: 0.5,
     characters: ['', '', '', '', '']
   });
 

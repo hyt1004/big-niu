@@ -1,6 +1,6 @@
 export interface ModelConfig {
   anime_mode: 'blackwhite' | 'color' | 'illustration';
-  era: 'ancient' | 'medieval' | 'renaissance' | 'industrial' | 'modern' | 'future' | 'cyberpunk' | 'fantasy';
+  era: 'medieval' | 'renaissance' | 'cold_war' | 'modern' | 'digital' | 'warring_states' | 'tang' | 'song';
   random_fine_tune: boolean;
   random_composition: boolean;
   random_shot: boolean;
