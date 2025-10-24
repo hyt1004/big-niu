@@ -64,6 +64,7 @@ OPENROUTER_API_KEY=your_openrouter_api_key_here
 OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
 TEXT_ANALYSIS_MODEL=anthropic/claude-3.5-sonnet
 IMAGE_PROMPT_MODEL=anthropic/claude-3.5-sonnet
+IMAGE_GENERATION_MODEL=openai/dall-e-3
 DEFAULT_SCENES_COUNT=10
 ```
 
@@ -230,6 +231,9 @@ curl -X POST "http://localhost:8000/api/v1/stage1/analyze" \
 # 推荐使用 Claude 3.5 Sonnet，效果好且价格合理
 TEXT_ANALYSIS_MODEL=anthropic/claude-3.5-sonnet
 IMAGE_PROMPT_MODEL=anthropic/claude-3.5-sonnet
+
+# 图像生成模型（默认 DALL-E 3）
+IMAGE_GENERATION_MODEL=openai/dall-e-3
 
 # 也可以使用其他模型
 # TEXT_ANALYSIS_MODEL=openai/gpt-4-turbo

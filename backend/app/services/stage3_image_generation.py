@@ -19,11 +19,13 @@ class Stage3ImageGenerationService:
         prompt: str,
         size: str = "1024x1024",
         quality: str = "standard",
-        model: str = "dall-e-3",
+        model: str = "openai/dall-e-3",
     ) -> bytes:
         headers = {
             "Authorization": f"Bearer {self.client.api_key}",
             "Content-Type": "application/json",
+            "HTTP-Referer": "https://github.com/hyt1004/big-niu",
+            "X-Title": "Big Niu Text-to-Video",
         }
         
         payload = {
@@ -63,16 +65,20 @@ class Stage3ImageGenerationService:
         stage2_output: Stage2Output,
         size: str = "1024x1024",
         quality: str = "standard",
+        model: Optional[str] = None,
     ) -> Stage3Output:
         prompt = stage2_output.image_prompt
         
         if stage2_output.negative_prompt:
             prompt = f"{prompt}. Avoid: {stage2_output.negative_prompt}"
         
+        model_to_use = model or settings.image_generation_model
+        
         image_data = await self.generate_image_from_prompt(
             prompt=prompt,
             size=size,
             quality=quality,
+            model=model_to_use,
         )
         
         filename = f"{stage2_output.scene_id}.png"
@@ -88,7 +94,7 @@ class Stage3ImageGenerationService:
             width=width,
             height=height,
             generation_params={
-                "model": "dall-e-3",
+                "model": model_to_use,
                 "size": size,
                 "quality": quality,
                 "prompt": prompt,
@@ -100,6 +106,7 @@ class Stage3ImageGenerationService:
         stage2_outputs: List[Stage2Output],
         size: str = "1024x1024",
         quality: str = "standard",
+        model: Optional[str] = None,
     ) -> List[Stage3Output]:
         results = []
         
@@ -109,6 +116,7 @@ class Stage3ImageGenerationService:
                     stage2_output=stage2_output,
                     size=size,
                     quality=quality,
+                    model=model,
                 )
                 results.append(result)
             except Exception as e:

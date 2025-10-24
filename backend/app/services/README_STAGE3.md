@@ -2,11 +2,12 @@
 
 ## 概述
 
-阶段三服务负责根据阶段二生成的图像提示词，调用 DALL-E 3 模型生成实际的图像文件，并保存到本地。
+阶段三服务负责根据阶段二生成的图像提示词，通过 OpenRouter API 统一接口调用图像生成模型（如 DALL-E 3）生成实际的图像文件，并保存到本地。
 
 ## 功能特性
 
-- 调用 OpenRouter API 访问 DALL-E 3 模型
+- 统一使用 OpenRouter API 访问图像生成模型
+- 默认使用 DALL-E 3（openai/dall-e-3），支持配置其他模型
 - 根据 Stage2Output 提示词生成图像
 - 自动下载生成的图像并保存为 PNG 格式
 - 支持批量生成多个场景图像
@@ -69,7 +70,7 @@ result = await service.generate_scene_image(
     "width": 1024,
     "height": 1024,
     "generation_params": {
-        "model": "dall-e-3",
+        "model": "openai/dall-e-3",
         "size": "1024x1024",
         "quality": "standard",
         "prompt": "完整的提示词..."
@@ -86,7 +87,10 @@ result = await service.generate_scene_image(
 ```env
 OPENROUTER_API_KEY=your_api_key_here
 OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
+IMAGE_GENERATION_MODEL=openai/dall-e-3
 ```
+
+> **注意**: 通过 OpenRouter 访问 DALL-E 3，模型名称格式为 `openai/dall-e-3`
 
 ### 依赖包
 

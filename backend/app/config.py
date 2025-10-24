@@ -6,6 +6,7 @@ class Settings(BaseSettings):
     openrouter_base_url: str = "https://openrouter.ai/api/v1"
     text_analysis_model: str = "anthropic/claude-3.5-sonnet"
     image_prompt_model: str = "anthropic/claude-3.5-sonnet"
+    image_generation_model: str = "openai/dall-e-3"
     default_scenes_count: int = 10
 
     class Config:
