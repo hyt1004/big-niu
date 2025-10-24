@@ -18,31 +18,54 @@ const ModelConfig: React.FC<ModelConfigProps> = ({ config, onChange }) => {
     onChange({ ...config, characters: newCharacters });
   };
 
+  const handleAddCharacter = () => {
+    if (config.characters.length < 5) {
+      onChange({ ...config, characters: [...config.characters, ''] });
+    }
+  };
+
+  const handleSaveSubmit = () => {
+    console.log('保存配置:', config);
+    alert('配置已保存');
+  };
+
   return (
     <div className="model-config">
-      <h3>模型配置</h3>
+      <h3 className="panel-title">模型配置</h3>
       
       <div className="config-section">
         <label>动漫模式</label>
         <div className="anime-mode-group">
-          <button
-            className={`mode-button ${config.anime_mode === 'blackwhite' ? 'active' : ''}`}
-            onClick={() => handleChange('anime_mode', 'blackwhite')}
-          >
+          <label className="radio-label">
+            <input
+              type="radio"
+              name="anime_mode"
+              value="blackwhite"
+              checked={config.anime_mode === 'blackwhite'}
+              onChange={(e) => handleChange('anime_mode', e.target.value)}
+            />
             黑白
-          </button>
-          <button
-            className={`mode-button ${config.anime_mode === 'color' ? 'active' : ''}`}
-            onClick={() => handleChange('anime_mode', 'color')}
-          >
+          </label>
+          <label className="radio-label">
+            <input
+              type="radio"
+              name="anime_mode"
+              value="color"
+              checked={config.anime_mode === 'color'}
+              onChange={(e) => handleChange('anime_mode', e.target.value)}
+            />
             彩色
-          </button>
-          <button
-            className={`mode-button ${config.anime_mode === 'illustration' ? 'active' : ''}`}
-            onClick={() => handleChange('anime_mode', 'illustration')}
-          >
+          </label>
+          <label className="radio-label">
+            <input
+              type="radio"
+              name="anime_mode"
+              value="illustration"
+              checked={config.anime_mode === 'illustration'}
+              onChange={(e) => handleChange('anime_mode', e.target.value)}
+            />
             插画
-          </button>
+          </label>
         </div>
       </div>
 
@@ -97,14 +120,14 @@ const ModelConfig: React.FC<ModelConfigProps> = ({ config, onChange }) => {
         <label>参数调节</label>
         <div className="params-grid">
           <div className="param-item">
-            <label>画面气氛 ({config.atmosphere.toFixed(2)})</label>
+            <label>画面气氛 ({config.atmosphere.toFixed(1)})</label>
             <div className="param-range">
               <span className="range-label">阴暗恐怖</span>
               <input
                 type="range"
                 min="0"
                 max="1"
-                step="0.01"
+                step="0.1"
                 value={config.atmosphere}
                 onChange={(e) => handleChange('atmosphere', parseFloat(e.target.value))}
               />
@@ -113,14 +136,14 @@ const ModelConfig: React.FC<ModelConfigProps> = ({ config, onChange }) => {
           </div>
 
           <div className="param-item">
-            <label>拍摄距离 ({config.distance.toFixed(2)})</label>
+            <label>拍摄距离 ({config.distance.toFixed(1)})</label>
             <div className="param-range">
               <span className="range-label">怼脸拍摄</span>
               <input
                 type="range"
                 min="0"
                 max="1"
-                step="0.01"
+                step="0.1"
                 value={config.distance}
                 onChange={(e) => handleChange('distance', parseFloat(e.target.value))}
               />
@@ -129,14 +152,14 @@ const ModelConfig: React.FC<ModelConfigProps> = ({ config, onChange }) => {
           </div>
 
           <div className="param-item">
-            <label>写实程度 ({config.realism.toFixed(2)})</label>
+            <label>写实程度 ({config.realism.toFixed(1)})</label>
             <div className="param-range">
               <span className="range-label">卡通</span>
               <input
                 type="range"
                 min="0"
                 max="1"
-                step="0.01"
+                step="0.1"
                 value={config.realism}
                 onChange={(e) => handleChange('realism', parseFloat(e.target.value))}
               />
@@ -145,14 +168,14 @@ const ModelConfig: React.FC<ModelConfigProps> = ({ config, onChange }) => {
           </div>
 
           <div className="param-item">
-            <label>动态强度 ({config.dynamic.toFixed(2)})</label>
+            <label>动态强度 ({config.dynamic.toFixed(1)})</label>
             <div className="param-range">
               <span className="range-label">静态</span>
               <input
                 type="range"
                 min="0"
                 max="1"
-                step="0.01"
+                step="0.1"
                 value={config.dynamic}
                 onChange={(e) => handleChange('dynamic', parseFloat(e.target.value))}
               />
@@ -163,17 +186,30 @@ const ModelConfig: React.FC<ModelConfigProps> = ({ config, onChange }) => {
       </div>
 
       <div className="config-section">
-        <label>主角描述</label>
-        {[0, 1, 2, 3, 4].map((index) => (
+        <div className="section-header">
+          <label>主角描述</label>
+          {config.characters.length < 5 && (
+            <button className="add-character-btn" onClick={handleAddCharacter}>
+              添加角色
+            </button>
+          )}
+        </div>
+        {config.characters.map((char, index) => (
           <input
             key={index}
             type="text"
-            placeholder={`角色 ${index + 1}`}
-            value={config.characters[index] || ''}
+            placeholder={index < 2 ? `角色 ${index + 1}` : `请输入角色 ${index + 1} 描述`}
+            value={char}
             onChange={(e) => handleCharacterChange(index, e.target.value)}
             className="character-input"
           />
         ))}
+      </div>
+
+      <div className="button-container">
+        <button className="save-submit-btn" onClick={handleSaveSubmit}>
+          保存提交
+        </button>
       </div>
     </div>
   );

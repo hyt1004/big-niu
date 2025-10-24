@@ -20,7 +20,7 @@ const VideoOutput: React.FC<VideoOutputProps> = ({ videoUrl, isGenerating }) => 
 
   return (
     <div className="video-output">
-      <h3>视频输出</h3>
+      <h3 className="panel-title">视频</h3>
       <div className="video-container">
         {isGenerating ? (
           <div className="loading">

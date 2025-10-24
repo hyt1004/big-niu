@@ -13,10 +13,13 @@ export interface ModelConfig {
 
 export interface AudioVideoConfig {
   audio_format: 'aac' | 'mp3' | 'wav' | 'm4a';
-  video_format: 'mp4' | 'avi' | 'mkv' | 'mov';
-  resolution: '720p' | '1080p' | '1440p' | '4k';
-  frame_rate: 24 | 30 | 60;
-  bitrate: string;
+  sample_rate: 16000 | 32000 | 44100 | 48000;
+  channels: 'mono' | 'stereo';
+  audio_bitrate: number;
+  video_format: 'mp4' | 'avi' | 'mkv' | 'mov' | 'webm';
+  resolution: '720p' | '1080p';
+  frame_rate: 25 | 30;
+  video_bitrate: number;
 }
 
 export interface NovelInputData {

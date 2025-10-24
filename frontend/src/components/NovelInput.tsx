@@ -6,8 +6,9 @@ interface NovelInputProps {
   onGenerate: () => void;
 }
 
-const NovelInput: React.FC<NovelInputProps> = ({ onTextChange, onGenerate }) => {
+const NovelInput: React.FC<NovelInputProps> = ({ onTextChange }) => {
   const [text, setText] = useState('');
+  const [prompt, setPrompt] = useState('');
 
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newText = e.target.value;
@@ -28,34 +29,64 @@ const NovelInput: React.FC<NovelInputProps> = ({ onTextChange, onGenerate }) => 
     }
   };
 
+  const handleSubmitText = () => {
+    if (!text.trim()) {
+      alert('请输入小说文本');
+      return;
+    }
+    console.log('提交文本:', text);
+  };
+
+  const handleSavePrompt = () => {
+    console.log('保存提示词:', prompt);
+    alert('提示词已保存');
+  };
+
   return (
     <div className="novel-input">
-      <h3>小说文案输入</h3>
+      <h3 className="panel-title">小说文案</h3>
+      
       <div className="textarea-container">
         <textarea
           className="text-area"
           value={text}
           onChange={handleTextChange}
-          placeholder="请输入小说文本..."
-          rows={10}
+          placeholder="请输入小说内容..."
+          rows={8}
         />
-        <div className="file-upload">
-          <label htmlFor="file-input" className="file-label">
-            📁 上传 TXT
-          </label>
-          <input
-            id="file-input"
-            type="file"
-            accept=".txt"
-            onChange={handleFileUpload}
-            className="file-input"
-          />
-        </div>
+        <label htmlFor="file-input" className="file-upload-btn">
+          上传TXT文件
+        </label>
+        <input
+          id="file-input"
+          type="file"
+          accept=".txt"
+          onChange={handleFileUpload}
+          className="file-input"
+        />
       </div>
+      
       <div className="button-container">
-        <button className="generate-btn" onClick={onGenerate}>
-          生成模型提示词
+        <button className="submit-btn" onClick={handleSubmitText}>
+          提交文本
         </button>
+      </div>
+
+      <div className="prompt-section">
+        <h4 className="section-subtitle">模型提示词</h4>
+        <textarea
+          className="prompt-area"
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+          placeholder="配置参数后点击'生成提示词'按钮"
+          rows={5}
+          readOnly
+        />
+        <div className="button-container">
+          <button className="save-btn" onClick={handleSavePrompt}>
+            保存
+          </button>
+        </div>
       </div>
     </div>
   );

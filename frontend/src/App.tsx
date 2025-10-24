@@ -21,15 +21,18 @@ function App() {
     distance: 0.5,
     realism: 0.5,
     dynamic: 0.5,
-    characters: ['', '', '', '', '']
+    characters: ['', '']
   });
 
   const [audioVideoConfig, setAudioVideoConfig] = useState<AudioVideoConfigType>({
     audio_format: 'aac',
+    sample_rate: 44100,
+    channels: 'stereo',
+    audio_bitrate: 128,
     video_format: 'mp4',
-    resolution: '1080p',
-    frame_rate: 30,
-    bitrate: '5000k'
+    resolution: '720p',
+    frame_rate: 25,
+    video_bitrate: 2000
   });
 
   const handleGenerate = async () => {
@@ -62,6 +65,7 @@ function App() {
     <div className="app">
       <header className="app-header">
         <h1>智能动漫生成系统</h1>
+        <p className="app-subtitle">将小说文本智能转换为动漫视频</p>
       </header>
       
       <div className="app-content">

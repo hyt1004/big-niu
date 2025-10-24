@@ -1,57 +1,54 @@
 .novel-input {
   background: #fff;
-  padding: 15px;
-  border-radius: 8px;
+  padding: 12px;
+  border-radius: 6px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  margin-bottom: 15px;
+  margin-bottom: 10px;
 }
 
-.novel-input h3 {
-  font-size: 16px;
-  margin: 0 0 12px 0;
+.panel-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 10px 0;
+  padding-bottom: 8px;
   color: #333;
+  border-bottom: 2px solid #ddd;
 }
 
 .textarea-container {
   position: relative;
+  margin-bottom: 10px;
 }
 
 .text-area {
   width: 100%;
-  padding: 10px;
-  padding-bottom: 50px;
+  min-height: 120px;
+  padding: 5px 8px;
+  padding-bottom: 40px;
   border: 1px solid #ddd;
   border-radius: 4px;
-  font-size: 14px;
+  font-size: 13px;
   font-family: inherit;
   resize: vertical;
   box-sizing: border-box;
 }
 
-.file-upload {
+.file-upload-btn {
   position: absolute;
   bottom: 8px;
   right: 8px;
-  margin: 0;
-}
-
-.file-label {
-  display: inline-block;
-  padding: 6px 12px;
-  background: #1890ff;
-  color: white;
-  border: none;
+  padding: 4px 8px;
+  background: #f0f0f0;
+  color: #333;
+  border: 1px solid #ddd;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 12px;
   transition: all 0.3s;
-  box-shadow: 0 2px 4px rgba(24, 144, 255, 0.3);
 }
 
-.file-label:hover {
-  background: #40a9ff;
-  box-shadow: 0 2px 6px rgba(24, 144, 255, 0.5);
-  transform: translateY(-1px);
+.file-upload-btn:hover {
+  background: #e0e0e0;
 }
 
 .file-input {
@@ -61,20 +58,46 @@
 .button-container {
   display: flex;
   justify-content: center;
-  margin-top: 12px;
+  margin-top: 10px;
 }
 
-.generate-btn {
-  padding: 10px 24px;
-  background: #1890ff;
+.submit-btn,
+.save-btn {
+  padding: 6px 12px;
+  background: #007bff;
   color: white;
   border: none;
   border-radius: 4px;
-  font-size: 14px;
+  font-size: 13px;
   cursor: pointer;
-  transition: background 0.3s;
+  transition: opacity 0.3s;
 }
 
-.generate-btn:hover {
-  background: #40a9ff;
+.submit-btn:hover,
+.save-btn:hover {
+  opacity: 0.9;
+}
+
+.prompt-section {
+  margin-top: 15px;
+}
+
+.section-subtitle {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  color: #333;
+}
+
+.prompt-area {
+  width: 100%;
+  min-height: 80px;
+  padding: 5px 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 13px;
+  font-family: inherit;
+  resize: vertical;
+  box-sizing: border-box;
+  background: #f9f9f9;
 }

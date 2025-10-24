@@ -1,14 +1,17 @@
 .model-config {
   background: #fff;
-  padding: 15px;
-  border-radius: 8px;
+  padding: 12px;
+  border-radius: 6px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.model-config h3 {
-  font-size: 16px;
-  margin: 0 0 12px 0;
+.panel-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 10px 0;
+  padding-bottom: 8px;
   color: #333;
+  border-bottom: 2px solid #ddd;
 }
 
 .config-section {
@@ -18,59 +21,53 @@
 .config-section > label {
   display: block;
   font-size: 14px;
-  color: #666;
-  margin-bottom: 6px;
-  font-weight: 500;
+  color: #333;
+  margin-bottom: 8px;
+  font-weight: 600;
 }
 
 .config-section select {
   width: 100%;
-  padding: 8px;
+  height: 32px;
+  padding: 5px 8px;
   border: 1px solid #ddd;
   border-radius: 4px;
-  font-size: 14px;
+  font-size: 13px;
   box-sizing: border-box;
 }
 
 .anime-mode-group {
   display: flex;
-  gap: 10px;
+  gap: 12px;
 }
 
-.mode-button {
-  flex: 1;
-  padding: 8px 16px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  background: #fff;
-  font-size: 14px;
+.radio-label {
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  color: #333;
+  font-weight: normal;
   cursor: pointer;
-  transition: all 0.2s;
 }
 
-.mode-button:hover {
-  border-color: #4CAF50;
-  color: #4CAF50;
-}
-
-.mode-button.active {
-  background: #4CAF50;
-  color: #fff;
-  border-color: #4CAF50;
+.radio-label input[type="radio"] {
+  margin-right: 4px;
+  cursor: pointer;
 }
 
 .checkbox-group {
   display: flex;
-  gap: 15px;
+  gap: 8px;
   margin-top: 6px;
 }
 
 .checkbox-group label {
   display: flex;
   align-items: center;
-  font-size: 14px;
+  font-size: 12px;
   color: #333;
   margin: 0;
+  font-weight: normal;
 }
 
 .checkbox-group input[type="checkbox"] {
@@ -80,13 +77,13 @@
 .params-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 15px;
+  gap: 8px;
   margin-top: 10px;
 }
 
 .param-item label {
   display: block;
-  font-size: 13px;
+  font-size: 12px;
   color: #333;
   margin-bottom: 6px;
   font-weight: normal;
@@ -112,7 +109,7 @@
   appearance: none;
   width: 16px;
   height: 16px;
-  background: #4CAF50;
+  background: #007bff;
   cursor: pointer;
   border-radius: 50%;
 }
@@ -120,7 +117,7 @@
 .param-range input[type="range"]::-moz-range-thumb {
   width: 16px;
   height: 16px;
-  background: #4CAF50;
+  background: #007bff;
   cursor: pointer;
   border-radius: 50%;
   border: none;
@@ -132,18 +129,69 @@
   white-space: nowrap;
 }
 
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.section-header label {
+  font-size: 14px;
+  color: #333;
+  font-weight: 600;
+  margin: 0;
+}
+
+.add-character-btn {
+  padding: 4px 8px;
+  background: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: opacity 0.3s;
+}
+
+.add-character-btn:hover {
+  opacity: 0.9;
+}
+
 .character-input {
   width: 100%;
-  padding: 8px;
+  height: 32px;
+  padding: 5px 8px;
   border: 1px solid #ddd;
   border-radius: 4px;
-  font-size: 14px;
-  margin-bottom: 8px;
+  font-size: 13px;
+  margin-bottom: 6px;
   box-sizing: border-box;
 }
 
 .character-input:last-child {
   margin-bottom: 0;
+}
+
+.button-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 15px;
+}
+
+.save-submit-btn {
+  padding: 6px 12px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: opacity 0.3s;
+}
+
+.save-submit-btn:hover {
+  opacity: 0.9;
 }
 
 @media (max-width: 768px) {
