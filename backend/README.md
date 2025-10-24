@@ -26,7 +26,8 @@ backend/
 │       ├── stage1_text_analysis.py   # 阶段1：文本分析服务
 │       └── stage2_image_prompt.py    # 阶段2：图像提示词生成服务
 ├── .env.example                   # 环境变量示例
-├── requirements.txt               # Python 依赖
+├── environment.yml                # Conda 环境配置（推荐）
+├── requirements.txt               # Python 依赖（备选）
 └── README.md                      # 本文件
 ```
 
@@ -34,10 +35,19 @@ backend/
 
 ### 1. 安装依赖
 
+使用 conda 创建并激活虚拟环境：
+
 ```bash
 cd backend
-pip install -r requirements.txt
+
+# 创建 conda 环境
+conda env create -f environment.yml
+
+# 激活环境
+conda activate big-niu-backend
 ```
+
+> **注意**：如果你更喜欢使用 pip，也可以运行 `pip install -r requirements.txt`
 
 ### 2. 配置环境变量
 
@@ -245,6 +255,43 @@ with open("tests/backend/stage1/mock_input_threebody.txt", "r") as f:
 ```
 
 ## 开发指南
+
+### Conda 环境管理
+
+#### 更新依赖
+
+如果需要添加新的依赖包：
+
+1. 手动编辑 `environment.yml` 文件，在 `pip:` 部分添加新包
+2. 更新环境：
+   ```bash
+   conda env update -f environment.yml --prune
+   ```
+
+#### 导出当前环境
+
+如果你在环境中安装了新包，想要更新 `environment.yml`：
+
+```bash
+# 导出完整环境（包括所有依赖）
+conda env export > environment.yml
+
+# 或者只导出明确安装的包（推荐）
+conda env export --from-history > environment.yml
+```
+
+#### 删除环境
+
+```bash
+conda deactivate
+conda env remove -n big-niu-backend
+```
+
+#### 列出所有 conda 环境
+
+```bash
+conda env list
+```
 
 ### 代码规范
 
