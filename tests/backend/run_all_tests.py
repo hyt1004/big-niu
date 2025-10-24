@@ -120,7 +120,7 @@ async def run_stage2_tests(stage1_output):
 
 async def run_stage3_tests(stage2_outputs):
     """运行 Stage3 测试"""
-    print_header("Stage 3: 图像生成")
+    print_header("Stage 3: 图像生成（并发模式）")
     
     from backend.app.services.stage3_image_generation import Stage3ImageGenerationService
     
@@ -130,30 +130,41 @@ async def run_stage3_tests(stage2_outputs):
         
         print_info(f"输出目录: {output_dir}")
         print_info(f"将生成 {len(stage2_outputs)} 张图像")
-        print_info("⚠️  每张图像需要约 20-30 秒")
+        print_info("🚀 并发模式：所有图像同时生成，预计耗时 ~30秒")
         
-        # 只生成第一个场景（节省成本）
-        print_info("测试模式: 仅生成第一个场景")
+        import time
+        start_time = time.time()
         
-        result = await service.generate_scene_image(
-            stage2_output=stage2_outputs[0],
+        # 使用并发模式生成所有图像
+        results = await service.generate_all_images(
+            stage2_outputs=stage2_outputs,
             size="1024x1024",
-            quality="standard"
+            quality="standard",
+            concurrent=True  # 启用并发，提升N倍速度
         )
         
-        print_success(f"场景 ID: {result.scene_id}")
-        print_success(f"图像路径: {result.image_path}")
-        print_success(f"图像尺寸: {result.width}x{result.height}")
+        elapsed = time.time() - start_time
+        
+        print_success(f"生成了 {len(results)} 张图像")
+        print_success(f"总耗时: {elapsed:.1f} 秒")
+        print_success(f"平均速度: {elapsed/len(results):.1f} 秒/张")
+        
+        for result in results:
+            print_info(f"  • {result.scene_id}: {result.image_path}")
         
         # 保存输出
         import json
         output_file = Path(__file__).parent / "fixtures" / "stage3_output.json"
         with open(output_file, "w", encoding="utf-8") as f:
-            json.dump(result.model_dump(), f, ensure_ascii=False, indent=2)
+            json.dump({
+                "total_images": len(results),
+                "elapsed_seconds": elapsed,
+                "images": [r.model_dump() for r in results]
+            }, f, ensure_ascii=False, indent=2)
         
         print_info(f"输出已保存: {output_file}")
         
-        return [result]
+        return results
         
     except Exception as e:
         print_error(f"Stage3 测试失败: {str(e)}")

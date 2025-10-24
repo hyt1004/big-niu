@@ -1,4 +1,5 @@
 import os
+import asyncio
 import httpx
 from io import BytesIO
 from typing import Optional, List
@@ -137,20 +138,67 @@ class Stage3ImageGenerationService:
         size: str = "1024x1024",
         quality: str = "standard",
         model: Optional[str] = None,
+        concurrent: bool = True,
     ) -> List[Stage3Output]:
-        results = []
+        """
+        生成所有场景的图像
         
-        for stage2_output in stage2_outputs:
-            try:
-                result = await self.generate_scene_image(
-                    stage2_output=stage2_output,
+        Args:
+            stage2_outputs: Stage2 输出列表
+            size: 图像尺寸
+            quality: 图像质量
+            model: 模型名称
+            concurrent: 是否并发执行（默认True，提升3倍速度）
+        
+        Returns:
+            Stage3Output 列表
+        """
+        if concurrent:
+            # 并发执行：同时发起所有请求，大幅提升速度
+            print(f"🚀 并发模式：同时生成 {len(stage2_outputs)} 张图像")
+            
+            tasks = [
+                self.generate_scene_image(
+                    stage2_output=output,
                     size=size,
                     quality=quality,
                     model=model,
                 )
-                results.append(result)
-            except Exception as e:
-                print(f"Failed to generate image for {stage2_output.scene_id}: {e}")
-                raise
-        
-        return results
+                for output in stage2_outputs
+            ]
+            
+            # asyncio.gather 并发执行所有任务
+            results = await asyncio.gather(*tasks, return_exceptions=True)
+            
+            # 检查错误
+            final_results = []
+            for i, result in enumerate(results):
+                if isinstance(result, Exception):
+                    scene_id = stage2_outputs[i].scene_id
+                    print(f"❌ {scene_id} 生成失败: {result}")
+                    raise result
+                else:
+                    final_results.append(result)
+            
+            return final_results
+        else:
+            # 串行执行：逐个生成（用于调试或API限流）
+            print(f"🐌 串行模式：依次生成 {len(stage2_outputs)} 张图像")
+            
+            results = []
+            for i, stage2_output in enumerate(stage2_outputs, 1):
+                try:
+                    print(f"📸 正在生成 {i}/{len(stage2_outputs)}: {stage2_output.scene_id}")
+                    result = await self.generate_scene_image(
+                        stage2_output=stage2_output,
+                        size=size,
+                        quality=quality,
+                        model=model,
+                    )
+                    results.append(result)
+                    print(f"✅ {stage2_output.scene_id} 完成")
+                except Exception as e:
+                    print(f"❌ {stage2_output.scene_id} 失败: {e}")
+                    raise
+            
+            return results

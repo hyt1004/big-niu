@@ -6,7 +6,19 @@ Stage3 图像生成测试脚本
 
 import asyncio
 import json
+import sys
+import os
 from pathlib import Path
+
+# 添加项目路径
+project_root = Path(__file__).parent.parent.parent.parent
+sys.path.insert(0, str(project_root / "backend"))
+
+# 加载环境变量
+from dotenv import load_dotenv
+env_path = project_root / "backend" / ".env"
+load_dotenv(env_path)
+
 from app.services.stage3_image_generation import Stage3ImageGenerationService
 from app.models.schemas import Stage2Output
 
@@ -18,12 +30,13 @@ async def test_stage3_from_stage2_output():
     print("Stage3 图像生成测试")
     print("=" * 60)
     
-    # 读取 Stage2 的输出
-    stage2_file = Path(__file__).parent / "stage2_output.json"
+    # 读取 Stage2 的输出（从 fixtures 目录）
+    stage2_file = Path(__file__).parent.parent / "fixtures" / "stage2_output.json"
     
     if not stage2_file.exists():
         print(f"❌ 找不到 Stage2 输出文件: {stage2_file}")
         print("请先运行 Stage1 和 Stage2 测试生成输出文件")
+        print("或运行: python run_all_tests.py")
         return None
     
     with open(stage2_file, "r", encoding="utf-8") as f:
@@ -35,49 +48,60 @@ async def test_stage3_from_stage2_output():
     print(f"\n📖 读取 Stage2 输出: {len(stage2_outputs)} 个场景")
     print(f"场景 IDs: {[s.scene_id for s in stage2_outputs]}")
     
-    # 创建 Stage3 服务
-    output_dir = Path(__file__).parent / "output" / "images"
+    # 创建 Stage3 服务（使用 fixtures 目录）
+    output_dir = Path(__file__).parent.parent / "fixtures" / "output" / "images"
     stage3_service = Stage3ImageGenerationService(output_dir=str(output_dir))
     
     print(f"\n📁 图像保存目录: {output_dir}")
-    print(f"\n⚠️  注意: DALL-E 3 图像生成需要付费，每张图约需 10-30 秒")
-    print(f"预计总耗时: {len(stage2_outputs) * 20} 秒左右\n")
+    print(f"\n⚠️  注意: 图像生成需要付费，每张图约需 10-30 秒")
+    print(f"🚀 并发模式：{len(stage2_outputs)} 张图同时生成，预计耗时 ~30秒\n")
     
-    # 只测试第一个场景，避免成本过高
-    print("🧪 测试模式: 仅生成第一个场景的图像\n")
-    test_output = stage2_outputs[0]
+    # 生成所有场景
+    print(f"🎨 开始生成 {len(stage2_outputs)} 个场景的图像\n")
     
     try:
-        print(f"🎨 开始生成场景: {test_output.scene_id}")
-        print(f"提示词: {test_output.image_prompt[:80]}...")
+        import time
+        start_time = time.time()
         
-        result = await stage3_service.generate_scene_image(
-            stage2_output=test_output,
+        # 使用并发模式生成所有图像
+        results = await stage3_service.generate_all_images(
+            stage2_outputs=stage2_outputs,
             size="1024x1024",
-            quality="standard"
+            quality="standard",
+            concurrent=True  # 启用并发，提升3倍速度
         )
         
-        print(f"\n✅ 图像生成成功!")
-        print(f"场景 ID: {result.scene_id}")
-        print(f"图像路径: {result.image_path}")
-        print(f"图像尺寸: {result.width}x{result.height}")
-        print(f"生成模型: {result.generation_params['model']}")
-        print(f"图像质量: {result.generation_params['quality']}")
+        elapsed = time.time() - start_time
         
-        # 保存结果
-        output_file = Path(__file__).parent / "stage3_output.json"
+        print(f"\n✅ 所有图像生成成功!")
+        print(f"⏱️  总耗时: {elapsed:.1f} 秒")
+        print(f"📊 平均速度: {elapsed/len(results):.1f} 秒/张")
+        print(f"\n生成的图像:")
+        
+        for result in results:
+            print(f"  • {result.scene_id}: {result.image_path}")
+        
+        # 保存结果（到 fixtures 目录）
+        output_file = Path(__file__).parent.parent / "fixtures" / "stage3_output.json"
         with open(output_file, "w", encoding="utf-8") as f:
             json.dump({
-                "scene_id": result.scene_id,
-                "image_path": result.image_path,
-                "width": result.width,
-                "height": result.height,
-                "generation_params": result.generation_params
+                "total_images": len(results),
+                "elapsed_seconds": elapsed,
+                "images": [
+                    {
+                        "scene_id": r.scene_id,
+                        "image_path": r.image_path,
+                        "width": r.width,
+                        "height": r.height,
+                        "generation_params": r.generation_params
+                    }
+                    for r in results
+                ]
             }, f, ensure_ascii=False, indent=2)
         
         print(f"\n结果已保存到: {output_file}")
         
-        return result
+        return results
         
     except Exception as e:
         print(f"\n❌ 图像生成失败: {str(e)}")
@@ -120,7 +144,7 @@ async def test_stage3_full_pipeline():
     
     # Stage3
     print("\n--- Stage3: 图像生成 ---")
-    output_dir = Path(__file__).parent / "output" / "images"
+    output_dir = Path(__file__).parent.parent / "fixtures" / "output" / "images"
     stage3_service = Stage3ImageGenerationService(output_dir=str(output_dir))
     
     result = await stage3_service.generate_scene_image(
@@ -156,7 +180,12 @@ if __name__ == "__main__":
     print("\n" + "=" * 60)
     if result:
         print("✅ Stage3 测试完成!")
-        print(f"查看生成的图像: {result.image_path}")
+        if isinstance(result, list):
+            print(f"生成了 {len(result)} 张图像:")
+            for r in result:
+                print(f"  • {r.image_path}")
+        else:
+            print(f"查看生成的图像: {result.image_path}")
     else:
         print("❌ Stage3 测试失败")
     print("=" * 60)
