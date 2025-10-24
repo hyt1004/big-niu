@@ -1,0 +1,117 @@
+{
+  "metadata": {
+    "total_scenes": 3,
+    "story_title": "The Mystery of the Numbers",
+    "total_characters": 3
+  },
+  "characters": [
+    {
+      "id": "char_001",
+      "name": "Wang Miao",
+      "description": "A middle-aged man in his 40s with short black hair, wearing a white lab coat over casual clothes, with a worried expression, sweat beads on his forehead, and tired eyes indicating lack of sleep.",
+      "personality": "Curious, determined, and increasingly anxious scientist grappling with unexplained phenomena."
+    },
+    {
+      "id": "char_002",
+      "name": "Xiao Li",
+      "description": "A young man in his 20s with neat short hair, wearing a casual lab jacket, clean-shaven, with a concerned and attentive facial expression.",
+      "personality": "Helpful, reliable, and cautious assistant who shows empathy and provides advice."
+    },
+    {
+      "id": "char_003",
+      "name": "Ye Wenjie",
+      "description": "An elderly woman in her 70s with full silver hair in a simple bun, sharp and profound dark eyes, wearing modest traditional clothing, with a calm and wise demeanor.",
+      "personality": "Wise, composed, and enigmatic elder with deep knowledge and a mysterious past."
+    }
+  ],
+  "scenes": [
+    {
+      "scene_id": "scene_001",
+      "order": 1,
+      "description": "A dimly lit bedroom at night, with a large window overlooking a starry sky. The room is cluttered with scientific books and papers, creating an atmosphere of intellectual turmoil. Soft moonlight filters through the curtains, casting shadows on the walls, emphasizing the character's isolation and unease.",
+      "composition": "Medium shot from a low angle, focusing on the character's face and the window in the background, with stars twinkling subtly.",
+      "characters": [
+        "char_001"
+      ],
+      "narration": "深夜，汪淼站在窗前，望着天空中闪烁的星星。最近几天，他总是被一些奇怪的现象困扰着。每当他闭上眼睛，就会看到一串神秘的数字在眼前跳动。",
+      "dialogues": [
+        {
+          "character": "char_001",
+          "text": "这到底是什么？",
+          "emotion": "Anxious and confused"
+        }
+      ]
+    },
+    {
+      "scene_id": "scene_002",
+      "order": 2,
+      "description": "A bright and sterile laboratory during the day, filled with scientific equipment like microscopes and computers. Harsh fluorescent lighting illuminates the space, highlighting the character's shock. The environment feels clinical and precise, contrasting with the mysterious element invading it.",
+      "composition": "Close-up on the microscope lens transitioning to a medium shot of the characters, with the lab environment framing the interaction.",
+      "characters": [
+        "char_001",
+        "char_002"
+      ],
+      "narration": "第二天，汪淼来到实验室，决定用科学的方法来解开这个谜团。他打开了显微镜，但令他震惊的是，在镜头里，那串数字再次出现了。就在这时，他的助手小李走了进来。",
+      "dialogues": [
+        {
+          "character": "char_001",
+          "text": "不可能！",
+          "emotion": "Shocked and distressed"
+        },
+        {
+          "character": "char_002",
+          "text": "汪教授，您今天看起来不太好。",
+          "emotion": "Concerned and caring"
+        },
+        {
+          "character": "char_001",
+          "text": "我遇到了一些奇怪的事情。",
+          "emotion": "Anxious and seeking help"
+        },
+        {
+          "character": "char_002",
+          "text": "汪教授，我建议您去见一个人。她叫叶文洁，是红岸基地的前工程师。",
+          "emotion": "Serious and advisory"
+        }
+      ]
+    },
+    {
+      "scene_id": "scene_003",
+      "order": 3,
+      "description": "An old, dimly lit suburban house in the evening, with wooden furniture and a sense of timelessness. Warm lamplight creates a cozy yet eerie atmosphere, with dust motes visible in the air, symbolizing hidden secrets being revealed. The room feels intimate and confidential.",
+      "composition": "Wide shot establishing the room, then medium shot focusing on the characters seated at a table, with close-ups on expressive faces during dialogue.",
+      "characters": [
+        "char_001",
+        "char_003"
+      ],
+      "narration": "几天后，汪淼驱车来到了郊外的一座老房子前。门开了，一位满头银发但目光深邃的老人站在门口。房间里，叶文洁给汪淼倒了一杯茶，然后缓缓开口。",
+      "dialogues": [
+        {
+          "character": "char_001",
+          "text": "叶文洁教授，我是汪淼。",
+          "emotion": "Nervous and respectful"
+        },
+        {
+          "character": "char_003",
+          "text": "我知道你会来。进来吧，有些事情，是时候让你知道了。",
+          "emotion": "Calm and knowing"
+        },
+        {
+          "character": "char_003",
+          "text": "这个宇宙，远比你想象的要复杂。",
+          "emotion": "Wise and profound"
+        },
+        {
+          "character": "char_001",
+          "text": "所以，那串数字是...",
+          "emotion": "Trembling with fear"
+        },
+        {
+          "character": "char_003",
+          "text": "是倒计时。三体文明正在接近地球。",
+          "emotion": "Serious and foreboding"
+        }
+      ]
+    }
+  ]
+}

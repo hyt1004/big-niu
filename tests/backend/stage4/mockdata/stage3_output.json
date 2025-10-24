@@ -1,0 +1,26 @@
+{
+  "total_images": 3,
+  "images": [
+    {
+      "scene_id": "scene_001",
+      "image_path": "tests/backend/stage4/mockdata/images/scene_001.png",
+      "width": 1024,
+      "height": 1024,
+      "duration": 0
+    },
+    {
+      "scene_id": "scene_002",
+      "image_path": "tests/backend/stage4/mockdata/images/scene_002.png",
+      "width": 1024,
+      "height": 1024,
+      "duration": 0
+    },
+    {
+      "scene_id": "scene_003",
+      "image_path": "tests/backend/stage4/mockdata/images/scene_003.png",
+      "width": 1024,
+      "height": 1024,
+      "duration": 0
+    }
+  ]
+}

@@ -1,0 +1,127 @@
+{
+  "scenes": [
+    {
+      "scene_id": "scene_001",
+      "image_path": "tests/backend/stage5/mockdata/images/scene_001.png",
+      "audio_segments": [
+        {
+          "type": "narration",
+          "text": "深夜，汪淼站在窗前，望着天空中闪烁的星星。最近几天，他总是被一些奇怪的现象困扰着。每当他闭上眼睛，就会看到一串神秘的数字在眼前跳动。",
+          "audio_path": "tests/backend/stage5/mockdata/audio/scene_001_narration.mp3",
+          "duration": 12.5,
+          "start_time": 0.0
+        },
+        {
+          "type": "dialogue",
+          "character": "char_001",
+          "text": "这到底是什么？",
+          "audio_path": "tests/backend/stage5/mockdata/audio/scene_001_dialogue_001.mp3",
+          "duration": 1.5,
+          "start_time": 12.5
+        }
+      ],
+      "total_duration": 14.0
+    },
+    {
+      "scene_id": "scene_002",
+      "image_path": "tests/backend/stage5/mockdata/images/scene_002.png",
+      "audio_segments": [
+        {
+          "type": "narration",
+          "text": "第二天，汪淼来到实验室，决定用科学的方法来解开这个谜团。他打开了显微镜，但令他震惊的是，在镜头里，那串数字再次出现了。就在这时，他的助手小李走了进来。",
+          "audio_path": "tests/backend/stage5/mockdata/audio/scene_002_narration.mp3",
+          "duration": 13.0,
+          "start_time": 0.0
+        },
+        {
+          "type": "dialogue",
+          "character": "char_001",
+          "text": "不可能！",
+          "audio_path": "tests/backend/stage5/mockdata/audio/scene_002_dialogue_001.mp3",
+          "duration": 1.0,
+          "start_time": 13.0
+        },
+        {
+          "type": "dialogue",
+          "character": "char_002",
+          "text": "汪教授，您今天看起来不太好。",
+          "audio_path": "tests/backend/stage5/mockdata/audio/scene_002_dialogue_002.mp3",
+          "duration": 2.5,
+          "start_time": 14.0
+        },
+        {
+          "type": "dialogue",
+          "character": "char_001",
+          "text": "我遇到了一些奇怪的事情。",
+          "audio_path": "tests/backend/stage5/mockdata/audio/scene_002_dialogue_003.mp3",
+          "duration": 2.0,
+          "start_time": 16.5
+        },
+        {
+          "type": "dialogue",
+          "character": "char_002",
+          "text": "汪教授，我建议您去见一个人。她叫叶文洁，是红岸基地的前工程师。",
+          "audio_path": "tests/backend/stage5/mockdata/audio/scene_002_dialogue_004.mp3",
+          "duration": 4.5,
+          "start_time": 18.5
+        }
+      ],
+      "total_duration": 23.0
+    },
+    {
+      "scene_id": "scene_003",
+      "image_path": "tests/backend/stage5/mockdata/images/scene_003.png",
+      "audio_segments": [
+        {
+          "type": "narration",
+          "text": "几天后，汪淼驱车来到了郊外的一座老房子前。门开了，一位满头银发但目光深邃的老人站在门口。房间里，叶文洁给汪淼倒了一杯茶，然后缓缓开口。",
+          "audio_path": "tests/backend/stage5/mockdata/audio/scene_003_narration.mp3",
+          "duration": 12.0,
+          "start_time": 0.0
+        },
+        {
+          "type": "dialogue",
+          "character": "char_001",
+          "text": "叶文洁教授，我是汪淼。",
+          "audio_path": "tests/backend/stage5/mockdata/audio/scene_003_dialogue_001.mp3",
+          "duration": 2.0,
+          "start_time": 12.0
+        },
+        {
+          "type": "dialogue",
+          "character": "char_003",
+          "text": "我知道你会来。进来吧，有些事情，是时候让你知道了。",
+          "audio_path": "tests/backend/stage5/mockdata/audio/scene_003_dialogue_002.mp3",
+          "duration": 4.0,
+          "start_time": 14.0
+        },
+        {
+          "type": "dialogue",
+          "character": "char_003",
+          "text": "这个宇宙，远比你想象的要复杂。",
+          "audio_path": "tests/backend/stage5/mockdata/audio/scene_003_dialogue_003.mp3",
+          "duration": 3.0,
+          "start_time": 18.0
+        },
+        {
+          "type": "dialogue",
+          "character": "char_001",
+          "text": "所以，那串数字是...",
+          "audio_path": "tests/backend/stage5/mockdata/audio/scene_003_dialogue_004.mp3",
+          "duration": 2.0,
+          "start_time": 21.0
+        },
+        {
+          "type": "dialogue",
+          "character": "char_003",
+          "text": "是倒计时。三体文明正在接近地球。",
+          "audio_path": "tests/backend/stage5/mockdata/audio/scene_003_dialogue_005.mp3",
+          "duration": 3.5,
+          "start_time": 23.0
+        }
+      ],
+      "total_duration": 26.5
+    }
+  ],
+  "total_video_duration": 63.5
+}
