@@ -21,6 +21,10 @@ class Stage3ImageGenerationService:
         quality: str = "standard",
         model: str = "openai/dall-e-3",
     ) -> bytes:
+        """
+        通过 OpenRouter 聊天完成接口生成图像
+        适用于 GPT-5 Image Mini 等多模态模型
+        """
         headers = {
             "Authorization": f"Bearer {self.client.api_key}",
             "Content-Type": "application/json",
@@ -28,29 +32,55 @@ class Stage3ImageGenerationService:
             "X-Title": "Big Niu Text-to-Video",
         }
         
+        # 使用聊天完成接口，而不是图像生成接口
+        # 直接使用字符串格式的 content
         payload = {
             "model": model,
-            "prompt": prompt,
-            "n": 1,
-            "size": size,
-            "quality": quality,
+            "messages": [
+                {
+                    "role": "user",
+                    "content": f"Generate an image: {prompt}"
+                }
+            ],
+            "max_tokens": 4000,
         }
         
         async with httpx.AsyncClient(timeout=120.0) as client:
             response = await client.post(
-                f"{self.client.base_url}/images/generations",
+                f"{self.client.base_url}/chat/completions",
                 headers=headers,
                 json=payload,
             )
-            response.raise_for_status()
+            
+            if response.status_code != 200:
+                error_detail = response.text
+                raise ValueError(f"API Error {response.status_code}: {error_detail}")
+            
             result = response.json()
             
-            image_url = result["data"][0]["url"]
+            # 从响应中提取图像
+            # GPT-5 Image 模型会在 message.images 中返回图像
+            message = result["choices"][0]["message"]
             
-            image_response = await client.get(image_url)
-            image_response.raise_for_status()
+            # 检查是否有图像数据
+            if "images" in message and len(message["images"]) > 0:
+                image_data = message["images"][0]
+                image_url = image_data["image_url"]["url"]
+                
+                # 如果是 base64 编码的图像
+                if image_url.startswith("data:image"):
+                    import base64
+                    # 提取 base64 数据部分
+                    base64_data = image_url.split(",")[1]
+                    return base64.b64decode(base64_data)
+                else:
+                    # 如果是 URL，下载图像
+                    image_response = await client.get(image_url)
+                    image_response.raise_for_status()
+                    return image_response.content
             
-            return image_response.content
+            # 如果没有找到图像，抛出错误
+            raise ValueError(f"No image found in response. Message keys: {message.keys()}")
     
     def save_image(self, image_data: bytes, filename: str) -> str:
         filepath = os.path.join(self.output_dir, filename)
