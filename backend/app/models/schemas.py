@@ -50,3 +50,12 @@ class Stage2Output(BaseModel):
     negative_prompt: Optional[str] = None
     style_tags: List[str] = Field(default_factory=list)
     characters_in_scene: List[str] = Field(default_factory=list)
+
+
+class Stage3Output(BaseModel):
+    scene_id: str = Field(..., description="场景ID")
+    image_path: str = Field(..., description="本地图片路径")
+    image_url: Optional[str] = Field(None, description="图片URL(如有)")
+    width: int = Field(..., description="图片宽度")
+    height: int = Field(..., description="图片高度")
+    generation_params: dict = Field(default_factory=dict, description="生成参数")
