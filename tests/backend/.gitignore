@@ -1,0 +1,25 @@
+# 测试输出
+fixtures/output/
+fixtures/*.json
+
+# 调试输出
+debug/*.json
+debug/*.png
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+*.egg-info/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 临时文件
+*.tmp
+*.log
