@@ -1,7 +1,7 @@
 import os
 import subprocess
 import tempfile
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Tuple
 from pathlib import Path
 import httpx
 from app.models.schemas import Stage1Output, Stage3Output
@@ -80,10 +80,12 @@ class VideoCompositionService:
         self.output_dir = output_dir
         self.audio_dir = os.path.join(output_dir, "audio")
         self.video_dir = os.path.join(output_dir, "videos")
+        self.subtitle_dir = os.path.join(output_dir, "subtitles")
         self.tts_service = tts_service or TTSService()
         
         os.makedirs(self.audio_dir, exist_ok=True)
         os.makedirs(self.video_dir, exist_ok=True)
+        os.makedirs(self.subtitle_dir, exist_ok=True)
     
     async def generate_scene_audio(
         self,
@@ -92,7 +94,7 @@ class VideoCompositionService:
         dialogues: List[Dict]
     ) -> Dict:
         audio_segments = []
-        total_duration = 0.0
+        start_time = 0.0
         
         if narration:
             narration_path = os.path.join(
@@ -106,10 +108,12 @@ class VideoCompositionService:
             )
             audio_segments.append({
                 "type": "narration",
+                "text": narration,
                 "path": narration_path,
-                "duration": narration_result["duration"]
+                "duration": narration_result["duration"],
+                "start_time": start_time
             })
-            total_duration += narration_result["duration"]
+            start_time += narration_result["duration"]
         
         for idx, dialogue in enumerate(dialogues):
             dialogue_path = os.path.join(
@@ -124,10 +128,12 @@ class VideoCompositionService:
             audio_segments.append({
                 "type": "dialogue",
                 "character": dialogue.get("character"),
+                "text": dialogue["text"],
                 "path": dialogue_path,
-                "duration": dialogue_result["duration"]
+                "duration": dialogue_result["duration"],
+                "start_time": start_time
             })
-            total_duration += dialogue_result["duration"]
+            start_time += dialogue_result["duration"]
         
         if audio_segments:
             merged_path = os.path.join(
@@ -142,7 +148,7 @@ class VideoCompositionService:
             return {
                 "scene_id": scene_id,
                 "audio_path": merged_path,
-                "duration": total_duration,
+                "duration": start_time,
                 "segments": audio_segments
             }
         
@@ -152,6 +158,48 @@ class VideoCompositionService:
             "duration": 0.0,
             "segments": []
         }
+    
+    def _format_srt_timestamp(self, seconds: float) -> str:
+        hours = int(seconds // 3600)
+        minutes = int((seconds % 3600) // 60)
+        secs = int(seconds % 60)
+        millis = int((seconds % 1) * 1000)
+        return f"{hours:02d}:{minutes:02d}:{secs:02d},{millis:03d}"
+    
+    def generate_subtitle_file(
+        self,
+        scene_audio_data: List[Dict],
+        output_path: str
+    ) -> str:
+        subtitle_entries = []
+        entry_index = 1
+        cumulative_time = 0.0
+        
+        for scene_data in scene_audio_data:
+            for segment in scene_data.get("segments", []):
+                text = segment.get("text", "")
+                duration = segment.get("duration", 0.0)
+                
+                if text:
+                    start_time = cumulative_time
+                    end_time = cumulative_time + duration
+                    
+                    start_str = self._format_srt_timestamp(start_time)
+                    end_str = self._format_srt_timestamp(end_time)
+                    
+                    subtitle_entries.append(
+                        f"{entry_index}\n"
+                        f"{start_str} --> {end_str}\n"
+                        f"{text}\n"
+                    )
+                    entry_index += 1
+                
+                cumulative_time += duration
+        
+        with open(output_path, 'w', encoding='utf-8') as f:
+            f.write("\n".join(subtitle_entries))
+        
+        return output_path
     
     def _merge_audio_files(self, audio_files: List[str], output_path: str):
         if len(audio_files) == 1:
@@ -189,7 +237,8 @@ class VideoCompositionService:
         self,
         stage1_output: Stage1Output,
         stage3_outputs: List[Stage3Output],
-        output_filename: str = "final_video.mp4"
+        output_filename: str = "final_video.mp4",
+        include_subtitles: bool = True
     ) -> Dict:
         scene_audio_data = []
         
@@ -222,15 +271,25 @@ class VideoCompositionService:
             final_audio_path
         )
         
+        subtitle_path = None
+        if include_subtitles:
+            subtitle_path = os.path.join(
+                self.subtitle_dir,
+                "subtitles.srt"
+            )
+            self.generate_subtitle_file(scene_audio_data, subtitle_path)
+        
         output_path = os.path.join(self.video_dir, output_filename)
         self._create_video_with_ffmpeg(
             video_inputs,
             final_audio_path,
-            output_path
+            output_path,
+            subtitle_path
         )
         
         return {
             "video_path": output_path,
+            "subtitle_path": subtitle_path,
             "total_duration": sum(v["duration"] for v in video_inputs),
             "scenes_count": len(video_inputs)
         }
@@ -239,7 +298,8 @@ class VideoCompositionService:
         self,
         video_inputs: List[Dict],
         audio_path: str,
-        output_path: str
+        output_path: str,
+        subtitle_path: Optional[str] = None
     ):
         with tempfile.NamedTemporaryFile(
             mode='w',
@@ -262,6 +322,13 @@ class VideoCompositionService:
                 "-safe", "0",
                 "-i", concat_file,
                 "-i", audio_path,
+            ]
+            
+            if subtitle_path and os.path.exists(subtitle_path):
+                subtitle_filter = f"subtitles={subtitle_path}:force_style='FontName=Arial,FontSize=24,PrimaryColour=&HFFFFFF&,OutlineColour=&H000000&,Outline=2'"
+                cmd.extend(["-vf", subtitle_filter])
+            
+            cmd.extend([
                 "-c:v", "libx264",
                 "-tune", "stillimage",
                 "-c:a", "aac",
@@ -270,7 +337,7 @@ class VideoCompositionService:
                 "-shortest",
                 "-y",
                 output_path
-            ]
+            ])
             
             subprocess.run(
                 cmd,

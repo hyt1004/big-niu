@@ -26,6 +26,7 @@ class VideoCompositionRequest(BaseModel):
     stage1_output: Stage1Output
     stage3_outputs: List[Stage3Output]
     output_filename: Optional[str] = "final_video.mp4"
+    include_subtitles: Optional[bool] = True
 
 
 @app.get("/")
@@ -89,12 +90,14 @@ async def stage4_compose_video(request: VideoCompositionRequest):
         result = await service.compose_video(
             stage1_output=request.stage1_output,
             stage3_outputs=request.stage3_outputs,
-            output_filename=request.output_filename
+            output_filename=request.output_filename,
+            include_subtitles=request.include_subtitles
         )
         
         return {
             "success": True,
             "video_path": result["video_path"],
+            "subtitle_path": result.get("subtitle_path"),
             "total_duration": result["total_duration"],
             "scenes_count": result["scenes_count"]
         }
