@@ -59,3 +59,21 @@ class Stage3Output(BaseModel):
     width: int = Field(..., description="图片宽度")
     height: int = Field(..., description="图片高度")
     generation_params: dict = Field(default_factory=dict, description="生成参数")
+
+
+class AudioSegment(BaseModel):
+    type: str = Field(..., description="音频类型: narration/dialogue")
+    text: str = Field(..., description="音频文本内容")
+    audio_path: str = Field(..., description="音频文件路径")
+    duration: float = Field(..., description="音频时长(秒)")
+    start_time: float = Field(..., description="开始时间(秒)")
+    voice: str = Field(..., description="音色ID")
+    character: Optional[str] = Field(None, description="角色ID")
+    character_name: Optional[str] = Field(None, description="角色名称")
+    emotion: Optional[str] = Field(None, description="情绪")
+
+
+class Stage4Output(BaseModel):
+    scene_id: str = Field(..., description="场景ID")
+    audio_segments: List[AudioSegment] = Field(..., description="音频片段列表")
+    total_duration: float = Field(..., description="场景总时长(秒)")
