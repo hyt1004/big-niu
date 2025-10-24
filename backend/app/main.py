@@ -1,9 +1,10 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 from app.services.stage1_text_analysis import Stage1TextAnalysisService
 from app.services.stage2_image_prompt import Stage2ImagePromptService
-from app.models.schemas import Stage1Output, Stage2Output
+from app.services.stage4_video_composition import VideoCompositionService
+from app.models.schemas import Stage1Output, Stage2Output, Stage3Output
 
 app = FastAPI(
     title="Big Niu - Text to Video API",
@@ -19,6 +20,12 @@ class TextAnalysisRequest(BaseModel):
 
 class ImagePromptRequest(BaseModel):
     stage1_output: Stage1Output
+
+
+class VideoCompositionRequest(BaseModel):
+    stage1_output: Stage1Output
+    stage3_outputs: List[Stage3Output]
+    output_filename: Optional[str] = "final_video.mp4"
 
 
 @app.get("/")
@@ -67,6 +74,29 @@ async def stage2_generate_prompts(request: ImagePromptRequest):
         return {
             "total_prompts": len(prompts),
             "prompts": prompts
+        }
+    
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+
+@app.post("/api/v1/stage4/compose-video")
+async def stage4_compose_video(request: VideoCompositionRequest):
+    try:
+        service = VideoCompositionService()
+        result = await service.compose_video(
+            stage1_output=request.stage1_output,
+            stage3_outputs=request.stage3_outputs,
+            output_filename=request.output_filename
+        )
+        
+        return {
+            "success": True,
+            "video_path": result["video_path"],
+            "total_duration": result["total_duration"],
+            "scenes_count": result["scenes_count"]
         }
     
     except ValueError as e:
