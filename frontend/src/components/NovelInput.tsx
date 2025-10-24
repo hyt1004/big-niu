@@ -31,24 +31,26 @@ const NovelInput: React.FC<NovelInputProps> = ({ onTextChange, onGenerate }) => 
   return (
     <div className="novel-input">
       <h3>小说文案输入</h3>
-      <textarea
-        className="text-area"
-        value={text}
-        onChange={handleTextChange}
-        placeholder="请输入小说文本..."
-        rows={10}
-      />
-      <div className="file-upload">
-        <label htmlFor="file-input" className="file-label">
-          上传 TXT 文件
-        </label>
-        <input
-          id="file-input"
-          type="file"
-          accept=".txt"
-          onChange={handleFileUpload}
-          className="file-input"
+      <div className="textarea-container">
+        <textarea
+          className="text-area"
+          value={text}
+          onChange={handleTextChange}
+          placeholder="请输入小说文本..."
+          rows={10}
         />
+        <div className="file-upload">
+          <label htmlFor="file-input" className="file-label">
+            📁 上传 TXT
+          </label>
+          <input
+            id="file-input"
+            type="file"
+            accept=".txt"
+            onChange={handleFileUpload}
+            className="file-input"
+          />
+        </div>
       </div>
       <div className="button-container">
         <button className="generate-btn" onClick={onGenerate}>
