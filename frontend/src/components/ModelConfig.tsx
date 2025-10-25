@@ -1,14 +1,47 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { ModelConfig as ModelConfigType } from '../types';
+import apiService from '../services/api';
 import './ModelConfig.css';
 
 interface ModelConfigProps {
   config: ModelConfigType;
   onChange: (config: ModelConfigType) => void;
   onSave: (config: ModelConfigType) => void;
+  onShowMessage?: (message: string, type?: 'success' | 'error' | 'info' | 'warning') => void;
 }
 
-const ModelConfig: React.FC<ModelConfigProps> = ({ config, onChange, onSave }) => {
+const ModelConfig: React.FC<ModelConfigProps> = ({ config, onChange, onSave, onShowMessage }) => {
+  const [loading, setLoading] = useState(false);
+  
+  useEffect(() => {
+    loadConfig();
+  }, []);
+  
+  const loadConfig = async () => {
+    setLoading(true);
+    try {
+      const response = await apiService.getModelConfig();
+      if (response) {
+        const convertedConfig = {
+          ...response,
+          atmosphere: response.atmosphere,
+          distance: response.distance,
+          realism: response.realism,
+          dynamic: response.dynamic,
+          shot_direction: response.shot_direction || 'horizontal',
+        };
+        onChange(convertedConfig);
+      }
+    } catch (err) {
+      if (onShowMessage) {
+        onShowMessage('加载配置失败', 'error');
+      }
+      console.error('Load config error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
   const handleChange = (field: keyof ModelConfigType, value: any) => {
     onChange({ ...config, [field]: value });
   };
@@ -25,8 +58,39 @@ const ModelConfig: React.FC<ModelConfigProps> = ({ config, onChange, onSave }) =
     }
   };
 
-  const handleSaveSubmit = () => {
-    onSave(config);
+  const handleSaveSubmit = async () => {
+    setLoading(true);
+    try {
+      const configToSave = {
+        ...config,
+        atmosphere: config.atmosphere,
+        distance: config.distance,
+        realism: config.realism,
+        dynamic: config.dynamic,
+      };
+
+      const response = await apiService.saveModelConfig(configToSave);
+      if (response) {
+        if (onShowMessage) {
+          onShowMessage('配置已保存！', 'success');
+        }
+        
+        if (onSave) {
+          setTimeout(() => onSave(config), 1000);
+        }
+      } else {
+        if (onShowMessage) {
+          onShowMessage('保存配置失败', 'error');
+        }
+      }
+    } catch (err) {
+      if (onShowMessage) {
+        onShowMessage('保存配置失败', 'error');
+      }
+      console.error('Save config error:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -218,8 +282,12 @@ const ModelConfig: React.FC<ModelConfigProps> = ({ config, onChange, onSave }) =
       </div>
 
       <div className="button-container">
-        <button className="save-submit-btn" onClick={handleSaveSubmit}>
-          保存提交
+        <button 
+          className="save-submit-btn" 
+          onClick={handleSaveSubmit}
+          disabled={loading}
+        >
+          {loading ? '保存中...' : '保存提交'}
         </button>
       </div>
     </div>

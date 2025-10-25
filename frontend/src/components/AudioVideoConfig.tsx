@@ -5,11 +5,18 @@ import './AudioVideoConfig.css';
 interface AudioVideoConfigProps {
   config: AudioVideoConfigType;
   onChange: (config: AudioVideoConfigType) => void;
+  onSave?: (config: AudioVideoConfigType) => void;
 }
 
-const AudioVideoConfig: React.FC<AudioVideoConfigProps> = ({ config, onChange }) => {
+const AudioVideoConfig: React.FC<AudioVideoConfigProps> = ({ config, onChange, onSave }) => {
   const handleChange = (field: keyof AudioVideoConfigType, value: any) => {
     onChange({ ...config, [field]: value });
+  };
+  
+  const handleSave = () => {
+    if (onSave) {
+      onSave(config);
+    }
   };
 
   return (
@@ -120,6 +127,14 @@ const AudioVideoConfig: React.FC<AudioVideoConfigProps> = ({ config, onChange })
           </div>
         </div>
       </div>
+      
+      {onSave && (
+        <div className="button-container">
+          <button className="save-submit-btn" onClick={handleSave}>
+            保存配置
+          </button>
+        </div>
+      )}
     </div>
   );
 };

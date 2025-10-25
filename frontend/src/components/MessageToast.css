@@ -9,7 +9,10 @@
   animation: slideIn 0.3s ease-out;
   min-width: 300px;
   max-width: 500px;
-  position: relative;
+  position: fixed;
+  top: 100px;
+  right: 20px;
+  z-index: 1000;
   overflow: hidden;
 }
 
