@@ -5,9 +5,10 @@ import './ModelConfig.css';
 interface ModelConfigProps {
   config: ModelConfigType;
   onChange: (config: ModelConfigType) => void;
+  onSave: (config: ModelConfigType) => void;
 }
 
-const ModelConfig: React.FC<ModelConfigProps> = ({ config, onChange }) => {
+const ModelConfig: React.FC<ModelConfigProps> = ({ config, onChange, onSave }) => {
   const handleChange = (field: keyof ModelConfigType, value: any) => {
     onChange({ ...config, [field]: value });
   };
@@ -25,8 +26,7 @@ const ModelConfig: React.FC<ModelConfigProps> = ({ config, onChange }) => {
   };
 
   const handleSaveSubmit = () => {
-    console.log('保存配置:', config);
-    alert('配置已保存');
+    onSave(config);
   };
 
   return (
@@ -83,6 +83,17 @@ const ModelConfig: React.FC<ModelConfigProps> = ({ config, onChange }) => {
           <option value="warring_states">中华战国</option>
           <option value="tang">中华唐代</option>
           <option value="song">中华宋代</option>
+        </select>
+      </div>
+
+      <div className="config-section">
+        <label>镜头方向</label>
+        <select
+          value={config.shot_direction}
+          onChange={(e) => handleChange('shot_direction', e.target.value)}
+        >
+          <option value="vertical">垂直</option>
+          <option value="horizontal">水平</option>
         </select>
       </div>
 
