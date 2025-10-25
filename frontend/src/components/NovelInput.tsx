@@ -92,7 +92,37 @@ const NovelInput: React.FC<NovelInputProps> = ({
 
   return (
     <div className="novel-input">
-      <h3 className="panel-title">小说文案</h3>
+      <div className="title-row">
+        <h3 className="panel-title">小说文案</h3>
+        <div className="storyboard-switch">
+          <label 
+            className="switch-label"
+            onMouseEnter={() => setShowTooltip(true)}
+            onMouseLeave={() => setShowTooltip(false)}
+          >
+            <input
+              type="checkbox"
+              checked={storyboardEnabled}
+              onChange={(e) => onStoryboardToggle(e.target.checked)}
+            />
+            <span className="switch-text">分镜表调整</span>
+            {showTooltip && (
+              <div className="tooltip">
+                <div className="tooltip-content">
+                  <div className="tooltip-title">分镜表使用流程：</div>
+                  <div className="tooltip-steps">
+                    <div className="tooltip-step">1. 提交文本</div>
+                    <div className="tooltip-step">2. 模型生成分镜表</div>
+                    <div className="tooltip-step">3. 用户修改分镜表</div>
+                    <div className="tooltip-step">4. 保存分镜表</div>
+                    <div className="tooltip-step">5. 生成视频</div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </label>
+        </div>
+      </div>
       
       <div className="textarea-container">
         <textarea
@@ -113,26 +143,6 @@ const NovelInput: React.FC<NovelInputProps> = ({
           className="file-input"
         />
       </div>
-
-      <div className="storyboard-option">
-        <label 
-          className="checkbox-label"
-          onMouseEnter={() => setShowTooltip(true)}
-          onMouseLeave={() => setShowTooltip(false)}
-        >
-          <input
-            type="checkbox"
-            checked={storyboardEnabled}
-            onChange={(e) => onStoryboardToggle(e.target.checked)}
-          />
-          <span>启用分镜表功能</span>
-          {showTooltip && (
-            <div className="tooltip">
-              启用分镜表功能可以对每个镜头进行详细编辑
-            </div>
-          )}
-        </label>
-      </div>
       
       <div className="button-container">
         <button className="submit-btn" onClick={handleSubmitText}>
@@ -141,23 +151,24 @@ const NovelInput: React.FC<NovelInputProps> = ({
       </div>
 
       <div className="prompt-section">
-        <h4 className="section-subtitle">模型提示词</h4>
+        <div className="prompt-header">
+          <h4 className="section-subtitle">提示词管理</h4>
+          <button 
+            className="save-prompt-btn" 
+            onClick={handleSavePrompt}
+            disabled={loading}
+          >
+            {loading ? '保存中...' : '保存提示词'}
+          </button>
+        </div>
+        
         <textarea
           className="prompt-area"
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
-          placeholder="配置参数后会自动生成提示词"
-          rows={5}
+          placeholder="输入提示词内容..."
+          rows={3}
         />
-        <div className="button-container">
-          <button 
-            className="save-btn" 
-            onClick={handleSavePrompt}
-            disabled={loading}
-          >
-            💾 {loading ? '保存中...' : '保存'}
-          </button>
-        </div>
       </div>
     </div>
   );
