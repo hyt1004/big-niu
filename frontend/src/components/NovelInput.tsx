@@ -3,12 +3,19 @@ import './NovelInput.css';
 
 interface NovelInputProps {
   onTextChange: (text: string) => void;
-  onGenerate: () => void;
+  onSubmit: (text: string, useStoryboard: boolean) => void;
+  onPromptChange: (prompt: string) => void;
+  prompt: string;
 }
 
-const NovelInput: React.FC<NovelInputProps> = ({ onTextChange }) => {
+const NovelInput: React.FC<NovelInputProps> = ({
+  onTextChange,
+  onSubmit,
+  onPromptChange,
+  prompt,
+}) => {
   const [text, setText] = useState('');
-  const [prompt, setPrompt] = useState('');
+  const [useStoryboard, setUseStoryboard] = useState(false);
 
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newText = e.target.value;
@@ -34,7 +41,7 @@ const NovelInput: React.FC<NovelInputProps> = ({ onTextChange }) => {
       alert('请输入小说文本');
       return;
     }
-    console.log('提交文本:', text);
+    onSubmit(text, useStoryboard);
   };
 
   const handleSavePrompt = () => {
@@ -55,7 +62,7 @@ const NovelInput: React.FC<NovelInputProps> = ({ onTextChange }) => {
           rows={8}
         />
         <label htmlFor="file-input" className="file-upload-btn">
-          上传TXT文件
+          📁 上传TXT文件
         </label>
         <input
           id="file-input"
@@ -65,10 +72,21 @@ const NovelInput: React.FC<NovelInputProps> = ({ onTextChange }) => {
           className="file-input"
         />
       </div>
+
+      <div className="storyboard-option">
+        <label className="checkbox-label" title="启用分镜表功能可以对每个镜头进行详细编辑">
+          <input
+            type="checkbox"
+            checked={useStoryboard}
+            onChange={(e) => setUseStoryboard(e.target.checked)}
+          />
+          <span>启用分镜表功能</span>
+        </label>
+      </div>
       
       <div className="button-container">
         <button className="submit-btn" onClick={handleSubmitText}>
-          提交文本
+          ✨ 提交文本
         </button>
       </div>
 
@@ -77,14 +95,13 @@ const NovelInput: React.FC<NovelInputProps> = ({ onTextChange }) => {
         <textarea
           className="prompt-area"
           value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
-          placeholder="配置参数后点击'生成提示词'按钮"
+          onChange={(e) => onPromptChange(e.target.value)}
+          placeholder="配置参数后会自动生成提示词"
           rows={5}
-          readOnly
         />
         <div className="button-container">
           <button className="save-btn" onClick={handleSavePrompt}>
-            保存
+            💾 保存
           </button>
         </div>
       </div>
