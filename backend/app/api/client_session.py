@@ -178,7 +178,7 @@ class ClientSessionManager:
             },
             "last_updated": datetime.now().isoformat(),
             "total_clients": len(self.sessions),
-            "online_clients": len(self.get_online_clients())
+            "online_clients": len([s for s in self.sessions.values() if s.status == ClientStatus.ONLINE])
         }
         
         with open(self.sessions_file, 'w', encoding='utf-8') as f:
@@ -208,8 +208,6 @@ class ClientSessionManager:
                 session.connection_info = session_data.get("connection_info", {})
                 
                 self.sessions[client_id] = session
-            
-            self.cleanup_expired_clients()
         
         except Exception as e:
             print(f"Error loading sessions: {e}")
