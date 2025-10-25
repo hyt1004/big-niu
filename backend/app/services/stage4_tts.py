@@ -1,6 +1,10 @@
 import os
 import asyncio
 import httpx
+import requests
+import base64
+import json
+import uuid
 from typing import Optional, List, Dict
 from app.config import settings
 from app.models.schemas import Stage1Output, Character, Scene, Dialogue
@@ -87,13 +91,14 @@ class Stage4Output:
 
 
 class Stage4TTSService:
+    # 火山引擎 TTS 语音类型映射
     VOICE_MAPPING = {
-        "narrator": "nova",
-        "male_middle_aged": "echo",
-        "male_young": "onyx",
-        "female_elderly": "shimmer",
-        "female_young": "alloy",
-        "male_elderly": "fable",
+        "narrator": "BV001_streaming",  # 标准女声
+        "male_middle_aged": "BV700_streaming",  # 标准男声
+        "male_young": "BV701_streaming",  # 年轻男声
+        "female_elderly": "BV002_streaming",  # 成熟女声
+        "female_young": "BV001_streaming",  # 标准女声
+        "male_elderly": "BV700_streaming",  # 标准男声
     }
 
     def __init__(self, output_dir: str = "./output/audio"):
@@ -104,7 +109,7 @@ class Stage4TTSService:
         chinese_chars = sum(1 for c in text if '\u4e00' <= c <= '\u9fff')
         english_words = len([w for w in text.split() if w.isascii()])
         
-        chinese_duration = chinese_chars * 0.4
+        chinese_duration = chinese_chars * 0.3
         english_duration = english_words * 0.35
         
         return max(1.0, chinese_duration + english_duration)
@@ -129,59 +134,119 @@ class Stage4TTSService:
         desc_lower = character.description.lower() if character.description else ""
         
         if "老" in name_lower or "elderly" in desc_lower or "old" in desc_lower:
-            if "女" in name_lower or "female" in desc_lower:
+            if "女" in name_lower or "female" in desc_lower or "woman" in desc_lower:
                 return self.VOICE_MAPPING["female_elderly"]
             return self.VOICE_MAPPING["male_elderly"]
         
         if "年轻" in desc_lower or "young" in desc_lower:
-            if "女" in name_lower or "female" in desc_lower:
+            if "女" in name_lower or "female" in desc_lower or "woman" in desc_lower:
                 return self.VOICE_MAPPING["female_young"]
             return self.VOICE_MAPPING["male_young"]
         
-        if "女" in name_lower or "female" in desc_lower:
+        if "女" in name_lower or "female" in desc_lower or "woman" in desc_lower:
             return self.VOICE_MAPPING["female_young"]
         
         return self.VOICE_MAPPING["male_middle_aged"]
 
     def _map_emotion_to_params(self, emotion: Optional[str]) -> dict:
         if not emotion:
-            return {}
+            return {"speed": 1.0, "pitch": 1.0, "volume": 1.0}
         
         emotion_lower = emotion.lower()
         params = {}
         
-        if "angry" in emotion_lower or "愤怒" in emotion_lower:
+        # 语速调整
+        if "angry" in emotion_lower or "anxious" in emotion_lower or "愤怒" in emotion_lower or "焦虑" in emotion_lower:
             params["speed"] = 1.1
-        elif "sad" in emotion_lower or "悲伤" in emotion_lower:
+            params["pitch"] = 1.1  # 愤怒时音调稍高
+        elif "sad" in emotion_lower or "depressed" in emotion_lower or "悲伤" in emotion_lower:
             params["speed"] = 0.9
-        elif "excited" in emotion_lower or "兴奋" in emotion_lower:
-            params["speed"] = 1.2
+            params["pitch"] = 0.9  # 悲伤时音调稍低
+        elif "excited" in emotion_lower or "happy" in emotion_lower or "兴奋" in emotion_lower:
+            params["speed"] = 1.05
+            params["pitch"] = 1.05  # 快乐时音调稍高
+        elif "calm" in emotion_lower or "peaceful" in emotion_lower or "平静" in emotion_lower:
+            params["speed"] = 0.95
+            params["pitch"] = 1.0
         else:
             params["speed"] = 1.0
+            params["pitch"] = 1.0
+        
+        # 设置默认音量
+        params["volume"] = 1.0
         
         return params
 
-    async def _generate_audio_openai(
+    async def _generate_audio_volcengine(
         self,
         text: str,
         voice: str,
         output_path: str,
+        emotion_params: dict = None,
     ) -> str:
         try:
-            from openai import OpenAI
+            # 获取火山引擎 TTS API 配置
+            appid = os.getenv("VOLCENGINE_APPID")
+            access_token = os.getenv("VOLCENGINE_ACCESS_TOKEN")
+            cluster = os.getenv("VOLCENGINE_CLUSTER", "volcano_tts")
             
-            client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+            if not appid or not access_token:
+                raise ValueError("VOLCENGINE_APPID and VOLCENGINE_ACCESS_TOKEN must be set")
             
-            response = client.audio.speech.create(
-                model="tts-1",
-                voice=voice,
-                input=text,
-            )
+            # 构建请求参数
+            request_json = {
+                "app": {
+                    "appid": appid,
+                    "token": access_token,
+                    "cluster": cluster
+                },
+                "user": {
+                    "uid": "tts_user"
+                },
+                "audio": {
+                    "voice_type": voice,
+                    "encoding": "mp3",
+                    "speed_ratio": emotion_params.get("speed", 1.0) if emotion_params else 1.0,
+                    "volume_ratio": emotion_params.get("volume", 1.0) if emotion_params else 1.0,
+                    "pitch_ratio": emotion_params.get("pitch", 1.0) if emotion_params else 1.0,
+                },
+                "request": {
+                    "reqid": str(uuid.uuid4()),
+                    "text": text,
+                    "text_type": "plain",
+                    "operation": "query",
+                    "with_frontend": 1,
+                    "frontend_type": "unitTson"
+                }
+            }
             
-            response.stream_to_file(output_path)
-            return output_path
+            # 设置请求头
+            headers = {
+                "Authorization": f"Bearer;{access_token}",
+                "Content-Type": "application/json"
+            }
+            
+            api_url = "https://openspeech.bytedance.com/api/v1/tts"
+            
+            response = requests.post(api_url, data=json.dumps(request_json), headers=headers)
+            result = response.json()
+            if "data" in result:
+                # 解码 base64 音频数据
+                audio_data = base64.b64decode(result["data"])
+                
+                # 确保输出目录存在
+                os.makedirs(os.path.dirname(output_path), exist_ok=True)
+                
+                # 保存音频文件
+                with open(output_path, "wb") as f:
+                    f.write(audio_data)
+                
+                return output_path
+            else:
+                raise ValueError(f"Invalid response from Volcengine TTS: {result}")
+                                    
         except Exception as e:
-            raise ValueError(f"Failed to generate audio with OpenAI TTS: {e}")
+            raise ValueError(f"Failed to generate audio with Volcengine TTS: {e}")
 
     async def _generate_audio_mock(
         self,
@@ -261,10 +326,14 @@ class Stage4TTSService:
         
         if use_real_tts:
             for segment in scene_audio.audio_segments:
-                await self._generate_audio_openai(
+                # 获取情绪参数
+                emotion_params = self._map_emotion_to_params(segment.emotion)
+                
+                await self._generate_audio_volcengine(
                     text=segment.text,
                     voice=segment.voice,
                     output_path=segment.audio_path,
+                    emotion_params=emotion_params,
                 )
         else:
             for segment in scene_audio.audio_segments:
