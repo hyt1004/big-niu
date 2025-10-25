@@ -84,9 +84,13 @@ class Stage5VideoCompositionService:
         subtitle_entries = []
         subtitle_index = 1
         
-        for scene in stage4_data["scenes"]:
-            for segment in scene["audio_segments"]:
-                start_time = segment["start_time"]
+        # 生成字幕文件
+        screen_start_time = 0.0
+        for idx, scene in enumerate(stage4_data["scenes"]):
+            if idx > 0:
+                screen_start_time += stage4_data["scenes"][idx - 1]["total_duration"]
+            for segment in enumerate(scene["audio_segments"]):
+                start_time = screen_start_time + segment["start_time"]
                 end_time = start_time + segment["duration"]
                 text = segment["text"]
                 
