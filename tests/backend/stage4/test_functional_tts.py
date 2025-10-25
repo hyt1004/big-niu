@@ -58,9 +58,7 @@ def mock_volcengine_response():
     return {
         "code": 3000,
         "message": "success",
-        "data": {
-            "audio": "base64_encoded_audio_data_for_testing"
-        }
+        "data": "YmFzZTY0X2VuY29kZWRfYXVkaW9fZGF0YV9mb3JfdGVzdGluZw=="
     }
 
 
@@ -110,12 +108,10 @@ class TestSceneAudioGeneration:
             dialogues=[Dialogue(**dialogue) for dialogue in scene_data["dialogues"]]
         )
         
-        # 模拟火山引擎响应
-        with patch('aiohttp.ClientSession.post') as mock_post:
+        with patch('httpx.AsyncClient.post') as mock_post:
             mock_response = AsyncMock()
-            mock_response.status = 200
             mock_response.json = AsyncMock(return_value=mock_volcengine_response)
-            mock_post.return_value.__aenter__.return_value = mock_response
+            mock_post.return_value = mock_response
             
             # 生成场景音频
             result = await tts_service.generate_scene_audio(
@@ -130,18 +126,16 @@ class TestSceneAudioGeneration:
             assert len(result.audio_segments) == 2  # 1旁白 + 1对话
             assert result.total_duration > 0
             
-            # 验证旁白音频段
             narration_segment = result.audio_segments[0]
             assert narration_segment.type == "narration"
             assert "汪淼" in narration_segment.text
-            assert narration_segment.voice == "narrator"
+            assert narration_segment.voice == "BV001_streaming"
             
-            # 验证对话音频段
             dialogue_segment = result.audio_segments[1]
             assert dialogue_segment.type == "dialogue"
             assert dialogue_segment.character == "char_001"
             assert dialogue_segment.text == "这到底是什么？"
-            assert dialogue_segment.voice == "male_middle_aged"
+            assert dialogue_segment.voice == "BV700_streaming"
     
     @pytest.mark.asyncio
     async def test_generate_scene_002_audio(self, stage1_data, temp_output_dir, mock_volcengine_response):
@@ -158,12 +152,10 @@ class TestSceneAudioGeneration:
             dialogues=[Dialogue(**dialogue) for dialogue in scene_data["dialogues"]]
         )
         
-        # 模拟火山引擎响应
-        with patch('aiohttp.ClientSession.post') as mock_post:
+        with patch('httpx.AsyncClient.post') as mock_post:
             mock_response = AsyncMock()
-            mock_response.status = 200
             mock_response.json = AsyncMock(return_value=mock_volcengine_response)
-            mock_post.return_value.__aenter__.return_value = mock_response
+            mock_post.return_value = mock_response
             
             # 生成场景音频
             result = await tts_service.generate_scene_audio(
@@ -189,11 +181,10 @@ class TestSceneAudioGeneration:
             assert len(char_001_segments) == 2  # 汪淼有2个对话
             assert len(char_002_segments) == 2  # 小李有2个对话
             
-            # 验证音色一致性
             for seg in char_001_segments:
-                assert seg.voice == "male_middle_aged"
+                assert seg.voice == "BV700_streaming"
             for seg in char_002_segments:
-                assert seg.voice == "male_young"
+                assert seg.voice == "BV701_streaming"
     
     @pytest.mark.asyncio
     async def test_generate_all_scenes_audio(self, stage1_data, temp_output_dir, mock_volcengine_response):
@@ -218,12 +209,10 @@ class TestSceneAudioGeneration:
             total_duration=60.0
         )
         
-        # 模拟火山引擎响应
-        with patch('aiohttp.ClientSession.post') as mock_post:
+        with patch('httpx.AsyncClient.post') as mock_post:
             mock_response = AsyncMock()
-            mock_response.status = 200
             mock_response.json = AsyncMock(return_value=mock_volcengine_response)
-            mock_post.return_value.__aenter__.return_value = mock_response
+            mock_post.return_value = mock_response
             
             # 生成所有场景音频
             result = await tts_service.generate_all_audio(
@@ -345,31 +334,28 @@ class TestVolcengineTTSIntegration:
         """测试火山引擎 TTS 错误处理"""
         tts_service = Stage4TTSService(output_dir=temp_output_dir)
         
-        # 模拟网络错误
-        with patch('aiohttp.ClientSession.post') as mock_post:
+        with patch('httpx.AsyncClient.post') as mock_post:
             mock_post.side_effect = Exception("Network error")
             
-            with pytest.raises(Exception, match="Network error"):
+            with pytest.raises(ValueError, match="Failed to generate audio"):
                 await tts_service._generate_audio_volcengine(
-                    "测试文本", "BV001_streaming", {"speed": 1.0, "pitch": 1.0, "volume": 1.0}
+                    "测试文本", "BV001_streaming", "./test_output/test.mp3", {"speed": 1.0, "pitch": 1.0, "volume": 1.0}
                 )
         
-        # 模拟 API 错误响应
         error_response = {
             "code": 4001,
             "message": "Invalid request",
             "data": None
         }
         
-        with patch('aiohttp.ClientSession.post') as mock_post:
+        with patch('httpx.AsyncClient.post') as mock_post:
             mock_response = AsyncMock()
-            mock_response.status = 200
             mock_response.json = AsyncMock(return_value=error_response)
-            mock_post.return_value.__aenter__.return_value = mock_response
+            mock_post.return_value = mock_response
             
-            with pytest.raises(Exception, match="Invalid request"):
+            with pytest.raises(ValueError, match="Invalid API response"):
                 await tts_service._generate_audio_volcengine(
-                    "测试文本", "BV001_streaming", {"speed": 1.0, "pitch": 1.0, "volume": 1.0}
+                    "测试文本", "BV001_streaming", "./test_output/test.mp3", {"speed": 1.0, "pitch": 1.0, "volume": 1.0}
                 )
 
 
@@ -387,24 +373,19 @@ class TestAudioFileSaving:
         """测试保存音频文件"""
         tts_service = Stage4TTSService(output_dir=temp_output_dir)
         
-        # 模拟火山引擎响应
-        with patch('aiohttp.ClientSession.post') as mock_post:
+        with patch('httpx.AsyncClient.post') as mock_post:
             mock_response = AsyncMock()
-            mock_response.status = 200
             mock_response.json = AsyncMock(return_value=mock_volcengine_response)
-            mock_post.return_value.__aenter__.return_value = mock_response
+            mock_post.return_value = mock_response
             
-            # 生成并保存音频
             text = "测试音频内容"
             voice = "BV001_streaming"
             emotion_params = {"speed": 1.0, "pitch": 1.0, "volume": 1.0}
-            output_path = Path(temp_output_dir) / "test_audio.mp3"
+            output_path = str(Path(temp_output_dir) / "test_audio.mp3")
             
-            audio_data = await tts_service._generate_audio_volcengine(
+            result = await tts_service._generate_audio_volcengine(
                 text, voice, output_path, emotion_params
             )
             
-            # 验证音频数据
-            assert audio_data is not None
-            assert len(audio_data) > 0
+            assert result == output_path
     

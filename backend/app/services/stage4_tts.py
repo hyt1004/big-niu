@@ -1,10 +1,11 @@
 import os
 import asyncio
 import httpx
-import requests
+import aiofiles
 import base64
 import json
 import uuid
+from pathlib import Path
 from typing import Optional, List, Dict
 from app.config import settings
 from app.models.schemas import Stage1Output, Character, Scene, Dialogue
@@ -104,10 +105,19 @@ class Stage4TTSService:
     def __init__(self, output_dir: str = "./output/audio"):
         self.output_dir = output_dir
         os.makedirs(self.output_dir, exist_ok=True)
+        
+        self.appid = os.getenv("VOLCENGINE_APPID", "").strip()
+        self.access_token = os.getenv("VOLCENGINE_ACCESS_TOKEN", "").strip()
+        self.cluster = os.getenv("VOLCENGINE_CLUSTER", "volcano_tts").strip()
+        
+        if not self.appid or len(self.appid) < 10:
+            raise ValueError("Invalid or missing VOLCENGINE_APPID")
+        if not self.access_token or len(self.access_token) < 20:
+            raise ValueError("Invalid or missing VOLCENGINE_ACCESS_TOKEN")
 
     def _estimate_duration(self, text: str) -> float:
         chinese_chars = sum(1 for c in text if '\u4e00' <= c <= '\u9fff')
-        english_words = len([w for w in text.split() if w.isascii()])
+        english_words = sum(1 for w in text.split() if w.isascii())
         
         chinese_duration = chinese_chars * 0.3
         english_duration = english_words * 0.35
@@ -177,6 +187,17 @@ class Stage4TTSService:
         
         return params
 
+    def _sanitize_output_path(self, output_path: str) -> str:
+        abs_output = Path(output_path).resolve()
+        abs_output_dir = Path(self.output_dir).resolve()
+        
+        try:
+            abs_output.relative_to(abs_output_dir)
+        except ValueError:
+            raise ValueError("Invalid output path: path traversal detected")
+        
+        return str(abs_output)
+    
     async def _generate_audio_volcengine(
         self,
         text: str,
@@ -185,20 +206,19 @@ class Stage4TTSService:
         emotion_params: dict = None,
     ) -> str:
         try:
-            # 获取火山引擎 TTS API 配置
-            appid = os.getenv("VOLCENGINE_APPID")
-            access_token = os.getenv("VOLCENGINE_ACCESS_TOKEN")
-            cluster = os.getenv("VOLCENGINE_CLUSTER", "volcano_tts")
+            if not text or len(text.strip()) == 0:
+                raise ValueError("Text cannot be empty")
+            if len(text) > 5000:
+                raise ValueError("Text exceeds maximum length")
+            text = text.strip()
             
-            if not appid or not access_token:
-                raise ValueError("VOLCENGINE_APPID and VOLCENGINE_ACCESS_TOKEN must be set")
+            output_path = self._sanitize_output_path(output_path)
             
-            # 构建请求参数
             request_json = {
                 "app": {
-                    "appid": appid,
-                    "token": access_token,
-                    "cluster": cluster
+                    "appid": self.appid,
+                    "token": self.access_token,
+                    "cluster": self.cluster
                 },
                 "user": {
                     "uid": "tts_user"
@@ -220,41 +240,42 @@ class Stage4TTSService:
                 }
             }
             
-            # 设置请求头
             headers = {
-                "Authorization": f"Bearer;{access_token}",
+                "Authorization": f"Bearer {self.access_token}",
                 "Content-Type": "application/json"
             }
             
             api_url = "https://openspeech.bytedance.com/api/v1/tts"
             
-        api_url = "https://openspeech.bytedance.com/api/v1/tts"
-        
-        async with httpx.AsyncClient(timeout=30.0) as client:
-            response = await client.post(api_url, json=request_json, headers=headers)
-            response.raise_for_status()
-            result = response.json()
-            result = response.json()
-            if "data" in result:
-                # 解码 base64 音频数据
-                audio_data = base64.b64decode(result["data"])
+            async with httpx.AsyncClient(timeout=120.0) as client:
+                response = await client.post(api_url, json=request_json, headers=headers)
+                response.raise_for_status()
+                result = response.json()
                 
-                # 确保输出目录存在
+                if "data" not in result or not result["data"]:
+                    error_msg = result.get("message", "Unknown error")
+                    raise ValueError(f"Invalid API response: {error_msg}")
+                
+                audio_b64 = result["data"]
+                if not isinstance(audio_b64, str) or len(audio_b64) > 10_000_000:
+                    raise ValueError("Invalid or oversized audio data")
+                
+                try:
+                    audio_data = base64.b64decode(audio_b64)
+                except Exception:
+                    raise ValueError("Invalid base64 encoded audio data")
+                
                 os.makedirs(os.path.dirname(output_path), exist_ok=True)
                 
-                # 保存音频文件
-                with open(output_path, "wb") as f:
-                    f.write(audio_data)
+                async with aiofiles.open(output_path, "wb") as f:
+                    await f.write(audio_data)
                 
                 return output_path
-            else:
-        else:
-            error_code = result.get("code", "unknown")
-            error_msg = result.get("message", "Unknown error")
-            raise ValueError(f"Volcengine TTS API error (code: {error_code}): {error_msg}")
                                     
+        except ValueError:
+            raise
         except Exception as e:
-            raise ValueError(f"Failed to generate audio with Volcengine TTS: {e}")
+            raise ValueError("Failed to generate audio. Please try again later.")
 
     async def _generate_audio_mock(
         self,
