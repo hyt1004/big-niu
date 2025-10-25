@@ -55,16 +55,20 @@ class ApiService {
 
   async registerClient(): Promise<ClientInfo> {
     try {
-      const response = await this.axiosInstance.post<ApiResponse<ClientInfo>>(
+      const response = await this.axiosInstance.post<any>(
         '/api/v1/bigniu/client/register',
         {}
       );
       
-      if (response.data.success && response.data.data) {
-        this.clientId = response.data.data.client_id;
+      if (response.data.success) {
+        this.clientId = response.data.client_id;
         this.reconnectAttempts = 0;
         this.startHeartbeat();
-        return response.data.data;
+        return {
+          client_id: response.data.client_id,
+          status: ConnectionStatus.CONNECTED,
+          last_heartbeat: response.data.created_at
+        };
       }
       
       throw new Error(response.data.message || 'Failed to register client');
