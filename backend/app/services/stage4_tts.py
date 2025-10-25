@@ -228,7 +228,12 @@ class Stage4TTSService:
             
             api_url = "https://openspeech.bytedance.com/api/v1/tts"
             
-            response = requests.post(api_url, data=json.dumps(request_json), headers=headers)
+        api_url = "https://openspeech.bytedance.com/api/v1/tts"
+        
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            response = await client.post(api_url, json=request_json, headers=headers)
+            response.raise_for_status()
+            result = response.json()
             result = response.json()
             if "data" in result:
                 # 解码 base64 音频数据
