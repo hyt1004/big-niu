@@ -13,15 +13,33 @@ const AudioVideoConfig: React.FC<AudioVideoConfigProps> = ({ config, onChange, o
     onChange({ ...config, [field]: value });
   };
   
-  const handleSave = () => {
+  const [loading, setLoading] = React.useState(false);
+
+  const handleSaveConfig = async () => {
     if (onSave) {
-      onSave(config);
+      setLoading(true);
+      try {
+        await onSave(config);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
   return (
     <div className="audio-video-config">
-      <h3 className="panel-title">音视频配置</h3>
+      <div className="config-header">
+        <h3 className="panel-title">音视频配置</h3>
+        <div className="header-actions">
+          <button 
+            className="save-submit-btn" 
+            onClick={handleSaveConfig}
+            disabled={loading}
+          >
+            {loading ? '保存中...' : '保存配置'}
+          </button>
+        </div>
+      </div>
       
       <div className="config-section">
         <h4 className="section-subtitle">音频配置</h4>
@@ -127,14 +145,6 @@ const AudioVideoConfig: React.FC<AudioVideoConfigProps> = ({ config, onChange, o
           </div>
         </div>
       </div>
-      
-      {onSave && (
-        <div className="button-container">
-          <button className="save-submit-btn" onClick={handleSave}>
-            保存配置
-          </button>
-        </div>
-      )}
     </div>
   );
 };

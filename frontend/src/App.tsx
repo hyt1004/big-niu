@@ -498,6 +498,20 @@ function App() {
                 onSaveStoryboard={handleSaveStoryboard}
                 onShowMessage={showMessage}
               />
+              
+              {storyboardEnabled && (
+                <div className="storyboard-info-section">
+                  <StoryboardInfoBar
+                    storyboard={storyboardData}
+                    loading={storyboardLoading}
+                    onExpand={() => {
+                      setIsExampleStoryboard(false);
+                      setShowStoryboardPage(true);
+                    }}
+                    onSubmit={handleStoryboardSubmit}
+                  />
+                </div>
+              )}
             </div>
             
             <div className="output-section">
@@ -507,20 +521,6 @@ function App() {
               />
             </div>
           </div>
-          
-          {storyboardEnabled && storyboardData && (
-            <div className="storyboard-bottom-section">
-              <StoryboardInfoBar
-                storyboard={storyboardData}
-                loading={storyboardLoading}
-                onExpand={() => {
-                  setIsExampleStoryboard(false);
-                  setShowStoryboardPage(true);
-                }}
-                onSubmit={handleStoryboardSubmit}
-              />
-            </div>
-          )}
         </div>
       </div>
 

@@ -8,17 +8,31 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.panel-title {
-  font-size: 18px;
-  font-weight: 600;
-  margin: 0 0 16px 0;
+.config-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
   padding-bottom: 12px;
-  color: #ffffff;
-  border-bottom: 2px solid rgba(102, 126, 234, 0.3);
+  border-bottom: 2px solid rgba(102, 126, 234, 0.2);
+}
+
+.panel-title {
+  font-size: 20px;
+  font-weight: 300;
+  margin: 0;
+  color: #2c3e50;
+  letter-spacing: 0.5px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .config-row {
@@ -254,29 +268,23 @@
   margin-bottom: 0;
 }
 
-.button-container {
-  display: flex;
-  justify-content: center;
-  margin-top: 20px;
-}
-
 .save-submit-btn {
-  padding: 12px 24px;
+  padding: 8px 16px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
-  border-radius: 8px;
-  font-size: 14px;
+  border-radius: 6px;
+  font-size: 12px;
   font-weight: 400;
   cursor: pointer;
   transition: all 0.3s ease;
-  letter-spacing: 0.5px;
-  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+  letter-spacing: 0.3px;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
 }
 
 .save-submit-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
 }
 
 .save-submit-btn:disabled {

@@ -23,11 +23,13 @@ body {
 .app-header {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  padding: 24px 32px;
+  padding: 16px 20px;
+  text-align: center;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-  position: sticky;
-  top: 0;
-  z-index: 100;
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+  overflow: hidden;
 }
 
 .header-content {
@@ -164,9 +166,7 @@ body {
   display: grid;
   grid-template-columns: 300px 1fr;
   gap: 0;
-  max-width: 100%;
-  margin: 0;
-  width: 100%;
+  min-height: calc(100vh - 70px);
 }
 
 .control-panel {
@@ -177,8 +177,6 @@ body {
   flex-direction: column;
   gap: 16px;
   box-shadow: 4px 0 20px rgba(0, 0, 0, 0.2);
-  overflow-y: auto;
-  max-height: calc(100vh - 92px);
 }
 
 .control-panel::-webkit-scrollbar {
@@ -401,8 +399,6 @@ body {
   background: linear-gradient(180deg, #0f0f23 0%, #1a1a2e 100%);
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
-  max-height: calc(100vh - 92px);
 }
 
 .workspace::-webkit-scrollbar {
@@ -463,9 +459,9 @@ body {
   flex-direction: column;
 }
 
-.storyboard-bottom-section {
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 16px 24px;
+.storyboard-info-section {
+  margin-top: 16px;
+  width: 100%;
 }
 
 .modal-overlay {
