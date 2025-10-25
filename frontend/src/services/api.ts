@@ -56,7 +56,8 @@ class ApiService {
   async registerClient(): Promise<ClientInfo> {
     try {
       const response = await this.axiosInstance.post<ApiResponse<ClientInfo>>(
-        '/api/v1/bigniu/client/register'
+        '/api/v1/bigniu/client/register',
+        {}
       );
       
       if (response.data.success && response.data.data) {
