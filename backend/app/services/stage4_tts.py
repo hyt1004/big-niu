@@ -248,7 +248,10 @@ class Stage4TTSService:
                 
                 return output_path
             else:
-                raise ValueError(f"Invalid response from Volcengine TTS: {result}")
+        else:
+            error_code = result.get("code", "unknown")
+            error_msg = result.get("message", "Unknown error")
+            raise ValueError(f"Volcengine TTS API error (code: {error_code}): {error_msg}")
                                     
         except Exception as e:
             raise ValueError(f"Failed to generate audio with Volcengine TTS: {e}")
