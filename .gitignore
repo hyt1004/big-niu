@@ -206,3 +206,8 @@ marimo/_static/
 marimo/_lsp/
 __marimo__/
 .DS_Store
+
+# Test output directories
+test_output/
+*/test_output/
+**/test_output/
