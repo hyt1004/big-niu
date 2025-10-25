@@ -21,8 +21,15 @@
   background-clip: text;
 }
 
-.config-section {
+.config-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
   margin-bottom: 20px;
+}
+
+.config-section {
+  margin-bottom: 0;
 }
 
 .config-section > label {
@@ -254,16 +261,17 @@
 }
 
 .save-submit-btn {
-  padding: 12px 32px;
+  padding: 12px 24px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
-  border-radius: 10px;
+  border-radius: 8px;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 400;
   cursor: pointer;
-  transition: all 0.3s;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  transition: all 0.3s ease;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
 }
 
 .save-submit-btn:hover {
@@ -271,7 +279,17 @@
   box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
 }
 
+.save-submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
 @media (max-width: 768px) {
+  .config-row {
+    grid-template-columns: 1fr;
+  }
+
   .params-grid {
     grid-template-columns: 1fr;
   }

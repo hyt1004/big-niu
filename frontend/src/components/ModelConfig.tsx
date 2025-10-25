@@ -97,97 +97,102 @@ const ModelConfig: React.FC<ModelConfigProps> = ({ config, onChange, onSave, onS
     <div className="model-config">
       <h3 className="panel-title">模型配置</h3>
       
-      <div className="config-section">
-        <label>动漫模式</label>
-        <div className="anime-mode-group">
-          <label className="radio-label">
-            <input
-              type="radio"
-              name="anime_mode"
-              value="blackwhite"
-              checked={config.anime_mode === 'blackwhite'}
-              onChange={(e) => handleChange('anime_mode', e.target.value)}
-            />
-            黑白
-          </label>
-          <label className="radio-label">
-            <input
-              type="radio"
-              name="anime_mode"
-              value="color"
-              checked={config.anime_mode === 'color'}
-              onChange={(e) => handleChange('anime_mode', e.target.value)}
-            />
-            彩色
-          </label>
-          <label className="radio-label">
-            <input
-              type="radio"
-              name="anime_mode"
-              value="illustration"
-              checked={config.anime_mode === 'illustration'}
-              onChange={(e) => handleChange('anime_mode', e.target.value)}
-            />
-            插画
-          </label>
+      <div className="config-row">
+        <div className="config-section">
+          <label>动漫模式</label>
+          <div className="anime-mode-group">
+            <label className="radio-label">
+              <input
+                type="radio"
+                name="anime_mode"
+                value="blackwhite"
+                checked={config.anime_mode === 'blackwhite'}
+                onChange={(e) => handleChange('anime_mode', e.target.value)}
+              />
+              黑白
+            </label>
+            <label className="radio-label">
+              <input
+                type="radio"
+                name="anime_mode"
+                value="color"
+                checked={config.anime_mode === 'color'}
+                onChange={(e) => handleChange('anime_mode', e.target.value)}
+              />
+              彩色
+            </label>
+            <label className="radio-label">
+              <input
+                type="radio"
+                name="anime_mode"
+                value="illustration"
+                checked={config.anime_mode === 'illustration'}
+                onChange={(e) => handleChange('anime_mode', e.target.value)}
+              />
+              插画
+            </label>
+          </div>
+        </div>
+
+        <div className="config-section">
+          <label>时代背景</label>
+          <select
+            value={config.era}
+            onChange={(e) => handleChange('era', e.target.value)}
+          >
+            <option value="medieval">中世纪</option>
+            <option value="renaissance">文艺复兴</option>
+            <option value="cold_war">冷战</option>
+            <option value="modern">现代</option>
+            <option value="digital">数字时代</option>
+            <option value="warring_states">中华战国</option>
+            <option value="tang">中华唐代</option>
+            <option value="song">中华宋代</option>
+          </select>
         </div>
       </div>
 
-      <div className="config-section">
-        <label>时代背景</label>
-        <select
-          value={config.era}
-          onChange={(e) => handleChange('era', e.target.value)}
-        >
-          <option value="medieval">中世纪</option>
-          <option value="renaissance">文艺复兴</option>
-          <option value="cold_war">冷战</option>
-          <option value="modern">现代</option>
-          <option value="digital">数字时代</option>
-          <option value="warring_states">中华战国</option>
-          <option value="tang">中华唐代</option>
-          <option value="song">中华宋代</option>
-        </select>
-      </div>
+      <div className="config-row">
+        <div className="config-section">
+          <label>随机选项</label>
+          <div className="checkbox-group">
+            <label>
+              <input
+                type="checkbox"
+                checked={config.random_fine_tune}
+                onChange={(e) => handleChange('random_fine_tune', e.target.checked)}
+              />
+              随机微调
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={config.random_composition}
+                onChange={(e) => handleChange('random_composition', e.target.checked)}
+              />
+              随机构图
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={config.random_shot}
+                onChange={(e) => handleChange('random_shot', e.target.checked)}
+              />
+              随机镜头
+            </label>
+          </div>
+        </div>
 
-      <div className="config-section">
-        <label>镜头方向</label>
-        <select
-          value={config.shot_direction}
-          onChange={(e) => handleChange('shot_direction', e.target.value)}
-        >
-          <option value="vertical">垂直</option>
-          <option value="horizontal">水平</option>
-        </select>
-      </div>
-
-      <div className="config-section">
-        <label>随机选项</label>
-        <div className="checkbox-group">
-          <label>
-            <input
-              type="checkbox"
-              checked={config.random_fine_tune}
-              onChange={(e) => handleChange('random_fine_tune', e.target.checked)}
-            />
-            随机微调
-          </label>
-          <label>
-            <input
-              type="checkbox"
-              checked={config.random_composition}
-              onChange={(e) => handleChange('random_composition', e.target.checked)}
-            />
-            随机构图
-          </label>
-          <label>
-            <input
-              type="checkbox"
-              checked={config.random_shot}
-              onChange={(e) => handleChange('random_shot', e.target.checked)}
-            />
-            随机镜头
-          </label>
+        <div className="config-section">
+          <label>镜头方向</label>
+          <select
+            value={config.shot_direction}
+            onChange={(e) => handleChange('shot_direction', e.target.value)}
+            className="shot-direction-select"
+          >
+            <option value="vertical">垂直方向 (竖屏)</option>
+            <option value="horizontal">水平方向 (横屏)</option>
+          </select>
         </div>
       </div>
 
@@ -287,7 +292,7 @@ const ModelConfig: React.FC<ModelConfigProps> = ({ config, onChange, onSave, onS
           onClick={handleSaveSubmit}
           disabled={loading}
         >
-          {loading ? '保存中...' : '保存提交'}
+          {loading ? '保存中...' : '保存配置'}
         </button>
       </div>
     </div>

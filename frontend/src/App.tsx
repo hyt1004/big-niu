@@ -304,13 +304,89 @@ function App() {
     <div className="app">
       <header className="app-header">
         <div className="header-content">
-          <h1>智能动漫生成系统</h1>
-          <div className="header-info">
-            <div className={`connection-status ${getConnectionStatusClass()}`}>
-              <span className="status-dot"></span>
-              <span>{getConnectionStatusText()}</span>
+          <div className="header-title">
+            <h1>智能动漫生成系统</h1>
+            <p className="app-subtitle">将小说文本智能转换为动漫视频</p>
+          </div>
+          <div className="connection-status">
+            <div className={`status-indicator ${connectionStatus.toLowerCase()}`}>
+              <div className="status-dot"></div>
+              <span className="status-text">
+                {connectionStatus === ConnectionStatus.CONNECTED && '已连接'}
+                {connectionStatus === ConnectionStatus.CONNECTING && '连接中'}
+                {connectionStatus === ConnectionStatus.DISCONNECTED && '已断开'}
+                {connectionStatus === ConnectionStatus.RECONNECTING && '重连中'}
+                {connectionStatus === ConnectionStatus.ERROR && '连接错误'}
+              </span>
             </div>
-            {clientId && <div className="client-id">ID: {clientId.substring(0, 8)}</div>}
+            {clientId && (
+              <div className="client-info">
+                <div 
+                  className="client-id-container"
+                  style={{ position: 'relative', display: 'inline-block' }}
+                >
+                  <span 
+                    className="client-id" 
+                    style={{ 
+                      cursor: 'help', 
+                      borderBottom: '1px dotted #ccc',
+                      position: 'relative'
+                    }}
+                    onMouseEnter={(e) => {
+                      const tooltip = document.createElement('div');
+                      tooltip.id = 'client-id-tooltip';
+                      tooltip.textContent = clientId;
+                      tooltip.style.cssText = `
+                        position: fixed;
+                        background: #333;
+                        color: white;
+                        padding: 5px 10px;
+                        border-radius: 4px;
+                        font-size: 12px;
+                        white-space: nowrap;
+                        z-index: 1000;
+                        pointer-events: none;
+                        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+                        max-width: 90vw;
+                        word-break: break-all;
+                      `;
+                      
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      const tooltipWidth = Math.min(300, clientId.length * 8);
+                      const tooltipHeight = 30;
+                      
+                      let left = rect.left;
+                      let top = rect.top - tooltipHeight - 5;
+                      
+                      if (left + tooltipWidth > window.innerWidth) {
+                        left = window.innerWidth - tooltipWidth - 10;
+                      }
+                      
+                      if (left < 10) {
+                        left = 10;
+                      }
+                      
+                      if (top < 10) {
+                        top = rect.bottom + 5;
+                      }
+                      
+                      tooltip.style.left = `${left}px`;
+                      tooltip.style.top = `${top}px`;
+                      
+                      document.body.appendChild(tooltip);
+                    }}
+                    onMouseLeave={() => {
+                      const tooltip = document.getElementById('client-id-tooltip');
+                      if (tooltip) {
+                        tooltip.remove();
+                      }
+                    }}
+                  >
+                    ID: {clientId.substring(0, 8)}...
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </header>
@@ -360,28 +436,25 @@ function App() {
             </div>
             <div className="workflow-steps">
               <div className={`workflow-step ${currentStep >= 1 ? 'active' : ''}`}>
-                <span className="step-number">1</span>
-                <span className="step-text">输入小说文本</span>
+                <div className="step-number">1</div>
+                <div className="step-content">
+                  <div className="step-title">输入文本</div>
+                  <div className="step-desc">输入小说内容</div>
+                </div>
               </div>
               <div className={`workflow-step ${currentStep >= 2 ? 'active' : ''}`}>
-                <span className="step-number">2</span>
-                <span className="step-text">文本分析处理</span>
+                <div className="step-number">2</div>
+                <div className="step-content">
+                  <div className="step-title">AI 分析</div>
+                  <div className="step-desc">智能解析场景</div>
+                </div>
               </div>
               <div className={`workflow-step ${currentStep >= 3 ? 'active' : ''}`}>
-                <span className="step-number">3</span>
-                <span className="step-text">生成分镜表</span>
-              </div>
-              <div className={`workflow-step ${currentStep >= 4 ? 'active' : ''}`}>
-                <span className="step-number">4</span>
-                <span className="step-text">图像生成</span>
-              </div>
-              <div className={`workflow-step ${currentStep >= 5 ? 'active' : ''}`}>
-                <span className="step-number">5</span>
-                <span className="step-text">视频合成</span>
-              </div>
-              <div className={`workflow-step ${currentStep >= 6 ? 'active' : ''}`}>
-                <span className="step-number">6</span>
-                <span className="step-text">完成输出</span>
+                <div className="step-number">3</div>
+                <div className="step-content">
+                  <div className="step-title">生成视频</div>
+                  <div className="step-desc">输出动漫视频</div>
+                </div>
               </div>
             </div>
           </div>
