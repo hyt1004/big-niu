@@ -1,6 +1,11 @@
 import os
 import asyncio
-import httpx
+import requests
+import aiofiles
+import base64
+import json
+import uuid
+from pathlib import Path
 from typing import Optional, List, Dict
 from app.config import settings
 from app.models.schemas import Stage1Output, Character, Scene, Dialogue
@@ -87,24 +92,34 @@ class Stage4Output:
 
 
 class Stage4TTSService:
+    # 火山引擎 TTS 语音类型映射
     VOICE_MAPPING = {
-        "narrator": "nova",
-        "male_middle_aged": "echo",
-        "male_young": "onyx",
-        "female_elderly": "shimmer",
-        "female_young": "alloy",
-        "male_elderly": "fable",
+        "narrator": "BV001_streaming",  # 标准女声
+        "male_middle_aged": "BV700_streaming",  # 标准男声
+        "male_young": "BV701_streaming",  # 年轻男声
+        "female_elderly": "BV002_streaming",  # 成熟女声
+        "female_young": "BV001_streaming",  # 标准女声
+        "male_elderly": "BV700_streaming",  # 标准男声
     }
 
     def __init__(self, output_dir: str = "./output/audio"):
         self.output_dir = output_dir
         os.makedirs(self.output_dir, exist_ok=True)
+        
+        self.appid = os.getenv("VOLCENGINE_APPID", "").strip()
+        self.access_token = os.getenv("VOLCENGINE_ACCESS_TOKEN", "").strip()
+        self.cluster = os.getenv("VOLCENGINE_CLUSTER", "volcano_tts").strip()
+        
+        if not self.appid or len(self.appid) < 10:
+            raise ValueError("Invalid or missing VOLCENGINE_APPID")
+        if not self.access_token or len(self.access_token) < 20:
+            raise ValueError("Invalid or missing VOLCENGINE_ACCESS_TOKEN")
 
     def _estimate_duration(self, text: str) -> float:
         chinese_chars = sum(1 for c in text if '\u4e00' <= c <= '\u9fff')
-        english_words = len([w for w in text.split() if w.isascii()])
+        english_words = sum(1 for w in text.split() if w.isascii())
         
-        chinese_duration = chinese_chars * 0.4
+        chinese_duration = chinese_chars * 0.3
         english_duration = english_words * 0.35
         
         return max(1.0, chinese_duration + english_duration)
@@ -129,59 +144,138 @@ class Stage4TTSService:
         desc_lower = character.description.lower() if character.description else ""
         
         if "老" in name_lower or "elderly" in desc_lower or "old" in desc_lower:
-            if "女" in name_lower or "female" in desc_lower:
+            if "女" in name_lower or "female" in desc_lower or "woman" in desc_lower:
                 return self.VOICE_MAPPING["female_elderly"]
             return self.VOICE_MAPPING["male_elderly"]
         
         if "年轻" in desc_lower or "young" in desc_lower:
-            if "女" in name_lower or "female" in desc_lower:
+            if "女" in name_lower or "female" in desc_lower or "woman" in desc_lower:
                 return self.VOICE_MAPPING["female_young"]
             return self.VOICE_MAPPING["male_young"]
         
-        if "女" in name_lower or "female" in desc_lower:
+        if "女" in name_lower or "female" in desc_lower or "woman" in desc_lower:
             return self.VOICE_MAPPING["female_young"]
         
         return self.VOICE_MAPPING["male_middle_aged"]
 
     def _map_emotion_to_params(self, emotion: Optional[str]) -> dict:
         if not emotion:
-            return {}
+            return {"speed": 1.0, "pitch": 1.0, "volume": 1.0}
         
         emotion_lower = emotion.lower()
         params = {}
         
-        if "angry" in emotion_lower or "愤怒" in emotion_lower:
+        # 语速调整
+        if "angry" in emotion_lower or "anxious" in emotion_lower or "愤怒" in emotion_lower or "焦虑" in emotion_lower:
             params["speed"] = 1.1
-        elif "sad" in emotion_lower or "悲伤" in emotion_lower:
+            params["pitch"] = 1.1  # 愤怒时音调稍高
+        elif "sad" in emotion_lower or "depressed" in emotion_lower or "悲伤" in emotion_lower:
             params["speed"] = 0.9
-        elif "excited" in emotion_lower or "兴奋" in emotion_lower:
-            params["speed"] = 1.2
+            params["pitch"] = 0.9  # 悲伤时音调稍低
+        elif "excited" in emotion_lower or "happy" in emotion_lower or "兴奋" in emotion_lower:
+            params["speed"] = 1.05
+            params["pitch"] = 1.05  # 快乐时音调稍高
+        elif "calm" in emotion_lower or "peaceful" in emotion_lower or "平静" in emotion_lower:
+            params["speed"] = 0.95
+            params["pitch"] = 1.0
         else:
             params["speed"] = 1.0
+            params["pitch"] = 1.0
+        
+        # 设置默认音量
+        params["volume"] = 1.0
         
         return params
 
-    async def _generate_audio_openai(
+    def _sanitize_output_path(self, output_path: str) -> str:
+        abs_output = Path(output_path).resolve()
+        abs_output_dir = Path(self.output_dir).resolve()
+        
+        try:
+            abs_output.relative_to(abs_output_dir)
+        except ValueError:
+            raise ValueError("Invalid output path: path traversal detected")
+        
+        return str(abs_output)
+    
+    async def _generate_audio_volcengine(
         self,
         text: str,
         voice: str,
         output_path: str,
+        emotion_params: dict = None,
     ) -> str:
         try:
-            from openai import OpenAI
+            if not text or len(text.strip()) == 0:
+                raise ValueError("Text cannot be empty")
+            if len(text) > 5000:
+                raise ValueError("Text exceeds maximum length")
+            text = text.strip()
             
-            client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+            output_path = self._sanitize_output_path(output_path)
             
-            response = client.audio.speech.create(
-                model="tts-1",
-                voice=voice,
-                input=text,
-            )
+            request_json = {
+                "app": {
+                    "appid": self.appid,
+                    "token": self.access_token,
+                    "cluster": self.cluster
+                },
+                "user": {
+                    "uid": "tts_user"
+                },
+                "audio": {
+                    "voice_type": voice,
+                    "encoding": "mp3",
+                    "speed_ratio": emotion_params.get("speed", 1.0) if emotion_params else 1.0,
+                    "volume_ratio": emotion_params.get("volume", 1.0) if emotion_params else 1.0,
+                    "pitch_ratio": emotion_params.get("pitch", 1.0) if emotion_params else 1.0,
+                },
+                "request": {
+                    "reqid": str(uuid.uuid4()),
+                    "text": text,
+                    "text_type": "plain",
+                    "operation": "query",
+                    "with_frontend": 1,
+                    "frontend_type": "unitTson"
+                }
+            }
             
-            response.stream_to_file(output_path)
+            headers = {
+                "Authorization": f"Bearer;{self.access_token}",
+                "Content-Type": "application/json"
+            }
+            
+            api_url = "https://openspeech.bytedance.com/api/v1/tts"
+            
+            response = requests.post(api_url, data=json.dumps(request_json), headers=headers)
+
+            
+            result = response.json()
+            
+            if "data" not in result or not result["data"]:
+                error_msg = result.get("message", "Unknown error")
+                raise ValueError(f"Invalid API response: {error_msg}")
+            
+            audio_b64 = result["data"]
+            if not isinstance(audio_b64, str) or len(audio_b64) > 10_000_000:
+                raise ValueError("Invalid or oversized audio data")
+            
+            try:
+                audio_data = base64.b64decode(audio_b64)
+            except Exception:
+                raise ValueError("Invalid base64 encoded audio data")
+            
+            os.makedirs(os.path.dirname(output_path), exist_ok=True)
+            
+            async with aiofiles.open(output_path, "wb") as f:
+                await f.write(audio_data)
+            
             return output_path
+                                    
+        except ValueError:
+            raise
         except Exception as e:
-            raise ValueError(f"Failed to generate audio with OpenAI TTS: {e}")
+            raise ValueError("Failed to generate audio. Please try again later.")
 
     async def _generate_audio_mock(
         self,
@@ -261,10 +355,14 @@ class Stage4TTSService:
         
         if use_real_tts:
             for segment in scene_audio.audio_segments:
-                await self._generate_audio_openai(
+                # 获取情绪参数
+                emotion_params = self._map_emotion_to_params(segment.emotion)
+                
+                await self._generate_audio_volcengine(
                     text=segment.text,
                     voice=segment.voice,
                     output_path=segment.audio_path,
+                    emotion_params=emotion_params,
                 )
         else:
             for segment in scene_audio.audio_segments:
