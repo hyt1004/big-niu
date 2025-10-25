@@ -95,7 +95,18 @@ const ModelConfig: React.FC<ModelConfigProps> = ({ config, onChange, onSave, onS
 
   return (
     <div className="model-config">
-      <h3 className="panel-title">模型配置</h3>
+      <div className="config-header">
+        <h3 className="panel-title">模型配置</h3>
+        <div className="header-actions">
+          <button 
+            className="save-submit-btn" 
+            onClick={handleSaveSubmit}
+            disabled={loading}
+          >
+            {loading ? '保存中...' : '保存提交'}
+          </button>
+        </div>
+      </div>
       
       <div className="config-row">
         <div className="config-section">
@@ -286,15 +297,6 @@ const ModelConfig: React.FC<ModelConfigProps> = ({ config, onChange, onSave, onS
         ))}
       </div>
 
-      <div className="button-container">
-        <button 
-          className="save-submit-btn" 
-          onClick={handleSaveSubmit}
-          disabled={loading}
-        >
-          {loading ? '保存中...' : '保存配置'}
-        </button>
-      </div>
     </div>
   );
 };
