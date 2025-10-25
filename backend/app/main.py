@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional, List
 from app.services.stage1_text_analysis import Stage1TextAnalysisService
@@ -6,12 +7,26 @@ from app.services.stage2_image_prompt import Stage2ImagePromptService
 from app.services.stage4_tts import Stage4TTSService
 from app.services.stage5_video_composition import Stage5VideoCompositionService
 from app.models.schemas import Stage1Output, Stage2Output, Stage3Output, Stage4Output, Stage5Output
+from app.api.router import api_router
 
 app = FastAPI(
     title="Big Niu - Text to Video API",
     description="智能文字生成视频系统",
     version="0.1.0"
 )
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173"
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
+
+app.include_router(api_router)
 
 
 class TextAnalysisRequest(BaseModel):
