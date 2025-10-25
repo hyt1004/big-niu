@@ -109,78 +109,373 @@ body {
   flex: 1;
   display: grid;
   grid-template-columns: 300px 1fr;
-  gap: 20px;
-  padding: 20px;
-  max-width: 1600px;
-  margin: 0 auto;
+  gap: 0;
+  max-width: 100%;
+  margin: 0;
   width: 100%;
 }
 
-.left-panel {
+.control-panel {
+  background: linear-gradient(180deg, #1e1e2e 0%, #2a2a3e 100%);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 16px 12px;
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: 16px;
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.2);
   overflow-y: auto;
-  max-height: calc(100vh - 100px);
+  max-height: calc(100vh - 92px);
 }
 
-.left-panel::-webkit-scrollbar {
+.control-panel::-webkit-scrollbar {
+  width: 6px;
+}
+
+.control-panel::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.control-panel::-webkit-scrollbar-thumb {
+  background: rgba(102, 126, 234, 0.3);
+  border-radius: 3px;
+}
+
+.panel-header {
+  text-align: center;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.panel-title {
+  font-size: 18px;
+  font-weight: 300;
+  color: #ffffff;
+  margin-bottom: 4px;
+  letter-spacing: 0.4px;
+}
+
+.panel-subtitle {
+  font-size: 11px;
+  color: #a0a0a0;
+  font-weight: 300;
+  letter-spacing: 0.2px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.section-title {
+  font-size: 13px;
+  color: #ffffff;
+  font-weight: 400;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+
+.section-divider {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, rgba(102, 126, 234, 0.3), transparent);
+}
+
+.config-section,
+.workflow-section,
+.example-section {
+  padding: 12px 8px;
+}
+
+.config-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.config-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  color: #ffffff;
+}
+
+.config-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+  transition: left 0.5s;
+}
+
+.config-btn:hover::before {
+  left: 100%;
+}
+
+.config-btn:hover {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.btn-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.btn-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.btn-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: #ffffff;
+}
+
+.btn-subtitle {
+  font-size: 10px;
+  color: #a0a0a0;
+  font-weight: 300;
+}
+
+.workflow-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.workflow-step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.3s ease;
+}
+
+.workflow-step.active {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+  border-color: rgba(102, 126, 234, 0.3);
+}
+
+.step-number {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: #a0a0a0;
+  flex-shrink: 0;
+}
+
+.workflow-step.active .step-number {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
+}
+
+.step-text {
+  font-size: 12px;
+  color: #a0a0a0;
+  font-weight: 300;
+}
+
+.workflow-step.active .step-text {
+  color: #ffffff;
+  font-weight: 400;
+}
+
+.example-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+  border: 1px solid rgba(102, 126, 234, 0.3);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #ffffff;
+}
+
+.example-btn:hover {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.25) 0%, rgba(118, 75, 162, 0.25) 100%);
+  border-color: rgba(102, 126, 234, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+.example-icon {
+  font-size: 18px;
+}
+
+.example-text {
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.workspace {
+  background: linear-gradient(180deg, #0f0f23 0%, #1a1a2e 100%);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  max-height: calc(100vh - 92px);
+}
+
+.workspace::-webkit-scrollbar {
   width: 8px;
 }
 
-.left-panel::-webkit-scrollbar-track {
+.workspace::-webkit-scrollbar-track {
   background: rgba(255, 255, 255, 0.05);
-  border-radius: 4px;
 }
 
-.left-panel::-webkit-scrollbar-thumb {
+.workspace::-webkit-scrollbar-thumb {
   background: rgba(102, 126, 234, 0.3);
   border-radius: 4px;
 }
 
-.left-panel::-webkit-scrollbar-thumb:hover {
-  background: rgba(102, 126, 234, 0.5);
+.workspace-header {
+  padding: 16px 20px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.right-panel {
+.workspace-title {
+  font-size: 16px;
+  color: #ffffff;
+  font-weight: 400;
+  letter-spacing: 0.3px;
+}
+
+.workspace-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.generating-badge {
+  padding: 6px 12px;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+  border: 1px solid rgba(102, 126, 234, 0.4);
+  border-radius: 20px;
+  font-size: 12px;
+  color: #ffffff;
+  animation: pulse 2s infinite;
+}
+
+.workspace-content {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 20px;
+  padding: 20px 24px;
+}
+
+.input-section,
+.output-section {
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
-  max-height: calc(100vh - 100px);
 }
 
-.right-panel::-webkit-scrollbar {
-  width: 8px;
+.storyboard-bottom-section {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 16px 24px;
 }
 
-.right-panel::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 4px;
-}
-
-.right-panel::-webkit-scrollbar-thumb {
-  background: rgba(102, 126, 234, 0.3);
-  border-radius: 4px;
-}
-
-.right-panel::-webkit-scrollbar-thumb:hover {
-  background: rgba(102, 126, 234, 0.5);
-}
-
-.messages-container {
+.modal-overlay {
   position: fixed;
-  top: 100px;
-  right: 20px;
-  z-index: 1000;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(5px);
   display: flex;
-  flex-direction: column;
-  gap: 12px;
-  max-width: 500px;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  animation: fadeIn 0.3s;
+}
+
+.modal-content {
+  background: linear-gradient(180deg, #1e1e2e 0%, #2a2a3e 100%);
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  animation: slideUp 0.3s;
+}
+
+.modal-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+  background: rgba(102, 126, 234, 0.3);
+  border-radius: 3px;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 @media (max-width: 1200px) {
   .app-content {
     grid-template-columns: 280px 1fr;
+  }
+  
+  .workspace-content {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -189,8 +484,8 @@ body {
     grid-template-columns: 1fr;
   }
 
-  .left-panel,
-  .right-panel {
+  .control-panel,
+  .workspace {
     max-height: none;
   }
 
@@ -214,16 +509,13 @@ body {
     font-size: 22px;
   }
 
-  .app-content {
+  .workspace-content {
     padding: 16px;
     gap: 16px;
   }
-
-  .messages-container {
-    top: auto;
-    bottom: 20px;
-    right: 16px;
-    left: 16px;
-    max-width: none;
+  
+  .modal-content {
+    max-width: 90%;
+    padding: 20px;
   }
 }
