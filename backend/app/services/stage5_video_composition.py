@@ -234,6 +234,8 @@ class Stage5VideoCompositionService:
             stderr=subprocess.PIPE,
             text=True,
         )
+
+        print(result)
         
         if result.returncode != 0:
             raise ValueError(f"Adding audio/subtitles failed: {result.stderr}")
