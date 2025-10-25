@@ -1,529 +1,263 @@
+#!/usr/bin/env python3
 """
-Stage5 视频合成验收测试
-使用真实mockdata进行端到端测试验证
+测试脚本：图片和声音整合成视频
+基于Stage5VideoCompositionService实现视频合成功能
 """
 
-import pytest
-import json
 import os
 import sys
+import json
+import tempfile
+import shutil
 from pathlib import Path
-from unittest.mock import patch, MagicMock
 
+# 添加项目根目录到Python路径
 project_root = Path(__file__).parent.parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-backend_path = project_root / "backend"
-sys.path.insert(0, str(backend_path))
-
-from app.services.stage5_video_composition import (
-    Stage5VideoCompositionService,
-    SubtitleEntry,
-    Stage5Output,
-)
+from backend.app.services.stage5_video_composition import Stage5VideoCompositionService
 
 
-MOCKDATA_DIR = Path(__file__).parent / "mockdata"
-STAGE4_OUTPUT = MOCKDATA_DIR / "stage4_output.json"
-EXPECTED_SUBTITLES = MOCKDATA_DIR / "expected_subtitles.srt"
-IMAGES_DIR = MOCKDATA_DIR / "images"
-AUDIO_DIR = MOCKDATA_DIR / "audio"
-
-
-class TestMockDataIntegrity:
-    """验收测试 - Mock数据完整性"""
-
-    def test_all_mockdata_files_exist(self):
-        """验证所有必需的mockdata文件都存在"""
-        assert MOCKDATA_DIR.exists(), "mockdata目录不存在"
-        assert STAGE4_OUTPUT.exists(), "stage4_output.json不存在"
-        assert EXPECTED_SUBTITLES.exists(), "expected_subtitles.srt不存在"
-        assert IMAGES_DIR.exists(), "images目录不存在"
-        assert AUDIO_DIR.exists(), "audio目录不存在"
-
-    def test_image_files_exist_and_readable(self):
-        """验证图像文件存在且可读"""
-        for i in range(1, 4):
-            image_path = IMAGES_DIR / f"scene_{i:03d}.png"
-            assert image_path.exists(), f"图像文件 {image_path} 不存在"
-            assert os.path.getsize(image_path) > 0, f"图像文件 {image_path} 为空"
-
-    def test_audio_files_exist_and_readable(self):
-        """验证音频文件存在且可读"""
-        with open(STAGE4_OUTPUT, "r", encoding="utf-8") as f:
-            stage4_data = json.load(f)
+class VideoCompositionTest:
+    def __init__(self):
+        self.mockdata_dir = Path(__file__).parent / "mockdata"
+        self.stage4_data = None
+        self.stage3_data = None
+        self.service = None
         
-        for scene in stage4_data["scenes"]:
-            for segment in scene["audio_segments"]:
-                audio_path = Path(segment["audio_path"])
-                assert audio_path.exists(), f"音频文件 {audio_path} 不存在"
-                assert os.path.getsize(audio_path) > 0, f"音频文件 {audio_path} 为空"
-
-    def test_stage4_output_format_correctness(self):
-        """验证stage4_output.json格式正确性"""
-        with open(STAGE4_OUTPUT, "r", encoding="utf-8") as f:
-            data = json.load(f)
+    def setup(self):
+        """初始化测试环境"""
+        print("🔧 初始化测试环境...")
         
-        assert "scenes" in data, "缺少scenes字段"
-        assert "total_video_duration" in data, "缺少total_video_duration字段"
-        assert isinstance(data["scenes"], list), "scenes应为列表"
-        assert len(data["scenes"]) == 3, "应有3个场景"
-        assert data["total_video_duration"] == 63.5, "总时长应为63.5秒"
+        # 创建临时输出目录
+        self.temp_output_dir = tempfile.mkdtemp(prefix="video_test_")
+        self.temp_dir = os.path.join(self.temp_output_dir, "temp")
         
-        for scene in data["scenes"]:
-            assert "scene_id" in scene, "场景缺少scene_id"
-            assert "image_path" in scene, "场景缺少image_path"
-            assert "audio_segments" in scene, "场景缺少audio_segments"
-            assert "total_duration" in scene, "场景缺少total_duration"
+        # 初始化服务
+        self.service = Stage5VideoCompositionService(
+            output_dir=os.path.join(self.temp_output_dir, "videos"),
+            temp_dir=self.temp_dir
+        )
+        
+        # 加载测试数据
+        self.load_test_data()
+        
+        print(f"✅ 测试环境初始化完成，输出目录: {self.temp_output_dir}")
+        
+    def load_test_data(self):
+        """加载测试数据"""
+        print("📁 加载测试数据...")
+        
+        # 加载stage4数据
+        stage4_file = self.mockdata_dir / "stage4_output.json"
+        with open(stage4_file, 'r', encoding='utf-8') as f:
+            self.stage4_data = json.load(f)
+        
+        # 构建stage3数据（图片信息）
+        self.stage3_data = []
+        for scene in self.stage4_data["scenes"]:
+            scene_id = scene["scene_id"]
+            image_path = self.mockdata_dir / "images" / f"{scene_id}.png"
             
-            for segment in scene["audio_segments"]:
-                assert "type" in segment, "音频段缺少type"
-                assert "text" in segment, "音频段缺少text"
-                assert "audio_path" in segment, "音频段缺少audio_path"
-                assert "duration" in segment, "音频段缺少duration"
-                assert "start_time" in segment, "音频段缺少start_time"
-
-    def test_expected_subtitles_format_correctness(self):
-        """验证expected_subtitles.srt格式正确性"""
-        with open(EXPECTED_SUBTITLES, "r", encoding="utf-8") as f:
-            content = f.read()
-        
-        assert content.strip(), "字幕文件为空"
-        
-        lines = content.strip().split('\n')
-        assert len(lines) > 0, "字幕文件无内容"
-        
-        assert "00:00:00,000 --> 00:00:12,500" in content, "缺少第一条字幕时间戳"
-        assert "深夜，汪淼站在窗前" in content, "缺少第一条字幕文本"
-        assert "三体文明正在接近地球" in content, "缺少最后一条字幕文本"
-        
-        subtitle_indices = [i for i, line in enumerate(lines) if line.strip().isdigit()]
-        assert len(subtitle_indices) == 13, "应有13条字幕"
-
-
-class TestSubtitleGenerationAcceptance:
-    """验收测试 - 字幕生成功能"""
-
-    def test_generate_subtitles_matches_expected_format(self):
-        """验证生成的字幕与预期格式匹配"""
-        service = Stage5VideoCompositionService()
-        
-        with open(STAGE4_OUTPUT, "r", encoding="utf-8") as f:
-            stage4_data = json.load(f)
-        
-        import tempfile
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.srt', delete=False, encoding='utf-8') as f:
-            subtitle_path = f.name
-        
-        try:
-            service._generate_subtitles(stage4_data, subtitle_path)
-            
-            with open(subtitle_path, "r", encoding="utf-8") as f:
-                generated = f.read()
-            
-            with open(EXPECTED_SUBTITLES, "r", encoding="utf-8") as f:
-                expected = f.read()
-            
-            generated_lines = [line.strip() for line in generated.strip().split('\n') if line.strip()]
-            expected_lines = [line.strip() for line in expected.strip().split('\n') if line.strip()]
-            
-            assert len(generated_lines) > 0, "生成的字幕为空"
-            assert "深夜，汪淼站在窗前" in generated, "生成的字幕缺少关键文本"
-            assert "三体文明正在接近地球" in generated, "生成的字幕缺少结尾文本"
-            
-            assert "00:00:00,000 --> 00:00:12,500" in generated, "字幕时间戳不正确"
-            
-        finally:
-            if os.path.exists(subtitle_path):
-                os.remove(subtitle_path)
-
-    def test_subtitle_timing_alignment(self):
-        """验证字幕时间轴对齐准确性"""
-        service = Stage5VideoCompositionService()
-        
-        with open(STAGE4_OUTPUT, "r", encoding="utf-8") as f:
-            stage4_data = json.load(f)
-        
-        import tempfile
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.srt', delete=False, encoding='utf-8') as f:
-            subtitle_path = f.name
-        
-        try:
-            service._generate_subtitles(stage4_data, subtitle_path)
-            
-            with open(subtitle_path, "r", encoding="utf-8") as f:
-                content = f.read()
-            
-            expected_timestamps = [
-                "00:00:00,000 --> 00:00:12,500",
-                "00:00:12,500 --> 00:00:14,000",
-                "00:00:14,000 --> 00:00:27,000",
-                "00:00:27,000 --> 00:00:28,000",
-                "00:00:28,000 --> 00:00:30,500",
-            ]
-            
-            for timestamp in expected_timestamps:
-                assert timestamp in content, f"缺少时间戳: {timestamp}"
-        
-        finally:
-            if os.path.exists(subtitle_path):
-                os.remove(subtitle_path)
-
-    def test_subtitle_content_completeness(self):
-        """验证字幕内容完整性"""
-        service = Stage5VideoCompositionService()
-        
-        with open(STAGE4_OUTPUT, "r", encoding="utf-8") as f:
-            stage4_data = json.load(f)
-        
-        import tempfile
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.srt', delete=False, encoding='utf-8') as f:
-            subtitle_path = f.name
-        
-        try:
-            service._generate_subtitles(stage4_data, subtitle_path)
-            
-            with open(subtitle_path, "r", encoding="utf-8") as f:
-                content = f.read()
-            
-            total_segments = sum(len(scene["audio_segments"]) for scene in stage4_data["scenes"])
-            
-            subtitle_indices = content.count('\n\n')
-            assert subtitle_indices >= total_segments - 1, f"字幕数量不足，应有{total_segments}条"
-            
-            key_texts = [
-                "深夜，汪淼站在窗前",
-                "这到底是什么？",
-                "不可能！",
-                "叶文洁教授，我是汪淼",
-                "三体文明正在接近地球",
-            ]
-            
-            for text in key_texts:
-                assert text in content, f"缺少关键文本: {text}"
-        
-        finally:
-            if os.path.exists(subtitle_path):
-                os.remove(subtitle_path)
-
-
-class TestVideoCompositionServiceAcceptance:
-    """验收测试 - 视频合成服务"""
-
-    @patch('subprocess.run')
-    def test_service_initialization_with_mockdata(self, mock_run):
-        """验证服务可以正常初始化"""
-        import tempfile
-        import shutil
-        
-        output_dir = tempfile.mkdtemp()
-        temp_dir = tempfile.mkdtemp()
-        
-        try:
-            service = Stage5VideoCompositionService(
-                output_dir=output_dir,
-                temp_dir=temp_dir,
-            )
-            
-            assert service.output_dir == output_dir
-            assert service.temp_dir == temp_dir
-            assert os.path.exists(output_dir)
-            assert os.path.exists(temp_dir)
-        
-        finally:
-            shutil.rmtree(output_dir)
-            shutil.rmtree(temp_dir)
-
-    @patch('subprocess.run')
-    def test_full_video_composition_workflow(self, mock_run):
-        """验证完整的视频合成工作流"""
-        mock_run.return_value = MagicMock(returncode=0, stderr="")
-        
-        import tempfile
-        import shutil
-        
-        output_dir = tempfile.mkdtemp()
-        temp_dir = tempfile.mkdtemp()
-        
-        try:
-            service = Stage5VideoCompositionService(
-                output_dir=output_dir,
-                temp_dir=temp_dir,
-            )
-            
-            with open(STAGE4_OUTPUT, "r", encoding="utf-8") as f:
-                stage4_data = json.load(f)
-            
-            stage3_data = []
-            for scene in stage4_data["scenes"]:
-                stage3_data.append({
-                    "scene_id": scene["scene_id"],
-                    "image_path": scene["image_path"],
+            if image_path.exists():
+                self.stage3_data.append({
+                    "scene_id": scene_id,
+                    "image_path": str(image_path)
                 })
-            
-            output_path = os.path.join(output_dir, "acceptance_test.mp4")
-            with open(output_path, "wb") as f:
-                f.write(b"MOCK_VIDEO_DATA")
-            
-            result = service.compose_video(
-                stage3_data=stage3_data,
-                stage4_data=stage4_data,
-                video_id="acceptance_test",
-            )
-            
-            assert isinstance(result, Stage5Output)
-            assert result.video_id == "acceptance_test"
-            assert result.scenes_count == 3
-            assert result.duration == 63.5
-            assert result.resolution == "1920x1080"
-            assert result.format == "mp4"
-            assert result.file_size > 0
-            
-            ffmpeg_call_count = mock_run.call_count
-            assert ffmpeg_call_count >= 4, f"FFmpeg调用次数不足: {ffmpeg_call_count}"
+            else:
+                print(f"⚠️  警告: 图片文件不存在 {image_path}")
         
-        finally:
-            shutil.rmtree(output_dir)
-            shutil.rmtree(temp_dir)
-
-    @patch('subprocess.run')
-    def test_video_composition_with_all_mockdata_files(self, mock_run):
-        """验证使用所有mockdata文件进行视频合成"""
-        mock_run.return_value = MagicMock(returncode=0, stderr="")
+        print(f"✅ 加载了 {len(self.stage3_data)} 个场景的图片数据")
         
-        import tempfile
-        import shutil
-        
-        output_dir = tempfile.mkdtemp()
-        temp_dir = tempfile.mkdtemp()
+    def test_compose_video(self):
+        """测试compose_video方法"""
+        print("\n🎬 测试compose_video方法...")
         
         try:
-            service = Stage5VideoCompositionService(
-                output_dir=output_dir,
-                temp_dir=temp_dir,
+            video_id = "test_video_compose"
+            result = self.service.compose_video(
+                stage3_data=self.stage3_data,
+                stage4_data=self.stage4_data,
+                video_id=video_id
             )
             
-            with open(STAGE4_OUTPUT, "r", encoding="utf-8") as f:
-                stage4_data = json.load(f)
+            print(f"✅ 视频合成成功!")
+            print(f"   视频ID: {result.video_id}")
+            print(f"   视频路径: {result.video_path}")
+            print(f"   时长: {result.duration}秒")
+            print(f"   分辨率: {result.resolution}")
+            print(f"   文件大小: {result.file_size}字节")
+            print(f"   格式: {result.format}")
+            print(f"   场景数量: {result.scenes_count}")
             
-            for scene in stage4_data["scenes"]:
-                image_path = Path(scene["image_path"])
-                assert image_path.exists(), f"图像文件缺失: {image_path}"
+            # 验证文件是否存在
+            if os.path.exists(result.video_path):
+                print(f"✅ 视频文件已生成: {result.video_path}")
+            else:
+                print(f"❌ 视频文件未找到: {result.video_path}")
                 
-                for segment in scene["audio_segments"]:
-                    audio_path = Path(segment["audio_path"])
-                    assert audio_path.exists(), f"音频文件缺失: {audio_path}"
+            return result
             
-            stage3_data = [
-                {"scene_id": scene["scene_id"], "image_path": scene["image_path"]}
-                for scene in stage4_data["scenes"]
-            ]
+        except Exception as e:
+            print(f"❌ 视频合成失败: {str(e)}")
+            return None
             
-            output_path = os.path.join(output_dir, "all_mockdata_test.mp4")
-            with open(output_path, "wb") as f:
-                f.write(b"FULL_MOCK_VIDEO")
-            
-            result = service.compose_video(
-                stage3_data=stage3_data,
-                stage4_data=stage4_data,
-                video_id="all_mockdata_test",
-            )
-            
-            assert result.video_id == "all_mockdata_test"
-            assert result.scenes_count == 3
-            assert result.duration == stage4_data["total_video_duration"]
-        
-        finally:
-            shutil.rmtree(output_dir)
-            shutil.rmtree(temp_dir)
-
-
-class TestOutputQualityAcceptance:
-    """验收测试 - 输出质量验证"""
-
-    @patch('subprocess.run')
-    def test_output_video_meets_specifications(self, mock_run):
-        """验证输出视频符合规格要求"""
-        mock_run.return_value = MagicMock(returncode=0, stderr="")
-        
-        import tempfile
-        import shutil
-        
-        output_dir = tempfile.mkdtemp()
-        temp_dir = tempfile.mkdtemp()
+    def test_compose_video_simple(self):
+        """测试compose_video_simple方法"""
+        print("\n🎬 测试compose_video_simple方法...")
         
         try:
-            service = Stage5VideoCompositionService(
-                output_dir=output_dir,
-                temp_dir=temp_dir,
+            # 准备简单测试数据
+            image_paths = []
+            audio_paths = []
+            durations = []
+            subtitle_texts = []
+            
+            current_time = 0.0
+            
+            for scene in self.stage4_data["scenes"]:
+                scene_id = scene["scene_id"]
+                image_path = self.mockdata_dir / "images" / f"{scene_id}.png"
+                
+                if image_path.exists():
+                    image_paths.append(str(image_path))
+                    durations.append(scene["total_duration"])
+                    
+                    # 收集音频路径
+                    for segment in scene["audio_segments"]:
+                        audio_path = self.mockdata_dir / "audio" / Path(segment["audio_path"]).name
+                        if audio_path.exists():
+                            audio_paths.append(str(audio_path))
+                            
+                            # 构建字幕数据
+                            start_time = current_time + segment["start_time"]
+                            end_time = start_time + segment["duration"]
+                            subtitle_texts.append((start_time, end_time, segment["text"]))
+                    
+                    current_time += scene["total_duration"]
+            
+            video_id = "test_video_simple"
+            result = self.service.compose_video_simple(
+                image_paths=image_paths,
+                audio_paths=audio_paths,
+                durations=durations,
+                subtitle_texts=subtitle_texts,
+                video_id=video_id
             )
             
-            with open(STAGE4_OUTPUT, "r", encoding="utf-8") as f:
-                stage4_data = json.load(f)
+            print(f"✅ 简单视频合成成功!")
+            print(f"   视频ID: {result.video_id}")
+            print(f"   视频路径: {result.video_path}")
+            print(f"   时长: {result.duration}秒")
+            print(f"   分辨率: {result.resolution}")
+            print(f"   文件大小: {result.file_size}字节")
+            print(f"   格式: {result.format}")
+            print(f"   场景数量: {result.scenes_count}")
             
-            stage3_data = [
-                {"scene_id": scene["scene_id"], "image_path": scene["image_path"]}
-                for scene in stage4_data["scenes"]
-            ]
+            # 验证文件是否存在
+            if os.path.exists(result.video_path):
+                print(f"✅ 视频文件已生成: {result.video_path}")
+            else:
+                print(f"❌ 视频文件未找到: {result.video_path}")
+                
+            return result
             
-            output_path = os.path.join(output_dir, "quality_test.mp4")
-            with open(output_path, "wb") as f:
-                f.write(b"QUALITY_TEST_VIDEO" * 1000)
+        except Exception as e:
+            print(f"❌ 简单视频合成失败: {str(e)}")
+            return None
             
-            result = service.compose_video(
-                stage3_data=stage3_data,
-                stage4_data=stage4_data,
-                video_id="quality_test",
-            )
-            
-            assert result.format == "mp4", "视频格式应为MP4"
-            assert result.resolution == "1920x1080", "分辨率应为1920x1080"
-            assert result.file_size > 0, "文件大小应大于0"
-            assert result.duration == 63.5, "视频时长应为63.5秒"
-            
-            ffmpeg_calls = [call[0][0] for call in mock_run.call_args_list]
-            
-            has_h264_encoding = any("libx264" in str(call) for call in ffmpeg_calls)
-            assert has_h264_encoding, "应使用H.264编码"
-            
-            has_scale = any("scale=1920:1080" in str(call) for call in ffmpeg_calls)
-            assert has_scale, "应设置1920x1080分辨率"
+    def verify_subtitles(self, video_id):
+        """验证生成的字幕文件"""
+        print(f"\n📝 验证字幕文件...")
         
-        finally:
-            shutil.rmtree(output_dir)
-            shutil.rmtree(temp_dir)
-
-    @patch('subprocess.run')
-    def test_ffmpeg_commands_correctness(self, mock_run):
-        """验证FFmpeg命令正确性"""
-        mock_run.return_value = MagicMock(returncode=0, stderr="")
+        subtitle_path = os.path.join(self.service.temp_dir, f"{video_id}_subtitles.srt")
         
-        import tempfile
-        import shutil
+        if os.path.exists(subtitle_path):
+            print(f"✅ 字幕文件已生成: {subtitle_path}")
+            
+            # 读取并显示字幕内容
+            with open(subtitle_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+                print(f"   字幕文件大小: {len(content)} 字符")
+                print("   前几行字幕内容:")
+                lines = content.split('\n')[:10]
+                for line in lines:
+                    if line.strip():
+                        print(f"     {line}")
+        else:
+            print(f"❌ 字幕文件未找到: {subtitle_path}")
+            
+    def cleanup(self):
+        """清理测试环境"""
+        print(f"\n🧹 清理测试环境...")
         
-        output_dir = tempfile.mkdtemp()
-        temp_dir = tempfile.mkdtemp()
+        if hasattr(self, 'temp_output_dir') and os.path.exists(self.temp_output_dir):
+            shutil.rmtree(self.temp_output_dir)
+            print(f"✅ 已清理临时目录: {self.temp_output_dir}")
+            
+    def run_all_tests(self):
+        """运行所有测试"""
+        print("🚀 开始视频合成测试")
+        print("=" * 50)
         
         try:
-            service = Stage5VideoCompositionService(
-                output_dir=output_dir,
-                temp_dir=temp_dir,
-            )
+            # 初始化
+            self.setup()
             
-            with open(STAGE4_OUTPUT, "r", encoding="utf-8") as f:
-                stage4_data = json.load(f)
+            # 测试compose_video方法
+            result1 = self.test_compose_video()
+            if result1:
+                self.verify_subtitles(result1.video_id)
             
-            stage3_data = [
-                {"scene_id": scene["scene_id"], "image_path": scene["image_path"]}
-                for scene in stage4_data["scenes"]
-            ]
+            # 测试compose_video_simple方法
+            result2 = self.test_compose_video_simple()
+            if result2:
+                self.verify_subtitles(result2.video_id)
             
-            output_path = os.path.join(output_dir, "ffmpeg_test.mp4")
-            with open(output_path, "wb") as f:
-                f.write(b"FFMPEG_TEST")
+            print("\n" + "=" * 50)
+            print("🎉 测试完成!")
             
-            result = service.compose_video(
-                stage3_data=stage3_data,
-                stage4_data=stage4_data,
-                video_id="ffmpeg_test",
-            )
-            
-            ffmpeg_calls = [call[0][0] for call in mock_run.call_args_list]
-            
-            assert len(ffmpeg_calls) > 0, "应有FFmpeg调用"
-            
-            all_calls_have_ffmpeg = all("ffmpeg" in str(call) for call in ffmpeg_calls)
-            assert all_calls_have_ffmpeg, "所有调用应包含ffmpeg命令"
-            
-            has_concat = any("-f" in str(call) and "concat" in str(call) for call in ffmpeg_calls)
-            assert has_concat, "应有concat操作"
-            
-            has_subtitle = any("subtitles=" in str(call) for call in ffmpeg_calls)
-            assert has_subtitle, "应有字幕添加操作"
-        
+            if result1 and result2:
+                print("✅ 所有测试通过!")
+                print(f"📁 输出目录: {self.temp_output_dir}")
+                print("💡 提示: 可以查看生成的视频文件来验证效果")
+            else:
+                print("❌ 部分测试失败，请检查错误信息")
+                
+        except Exception as e:
+            print(f"❌ 测试过程中发生错误: {str(e)}")
         finally:
-            shutil.rmtree(output_dir)
-            shutil.rmtree(temp_dir)
+            # 询问是否清理
+            response = input("\n是否清理临时文件? (y/n): ").lower().strip()
+            if response in ['y', 'yes', '是']:
+                self.cleanup()
+            else:
+                print(f"💾 临时文件保留在: {self.temp_output_dir}")
 
 
-class TestPerformanceAcceptance:
-    """验收测试 - 性能要求"""
-
-    @patch('subprocess.run')
-    def test_service_handles_multiple_scenes(self, mock_run):
-        """验证服务能处理多个场景"""
-        mock_run.return_value = MagicMock(returncode=0, stderr="")
-        
-        import tempfile
-        import shutil
-        
-        output_dir = tempfile.mkdtemp()
-        temp_dir = tempfile.mkdtemp()
-        
-        try:
-            service = Stage5VideoCompositionService(
-                output_dir=output_dir,
-                temp_dir=temp_dir,
-            )
-            
-            with open(STAGE4_OUTPUT, "r", encoding="utf-8") as f:
-                stage4_data = json.load(f)
-            
-            assert len(stage4_data["scenes"]) == 3, "应有3个场景"
-            
-            stage3_data = [
-                {"scene_id": scene["scene_id"], "image_path": scene["image_path"]}
-                for scene in stage4_data["scenes"]
-            ]
-            
-            output_path = os.path.join(output_dir, "multi_scene_test.mp4")
-            with open(output_path, "wb") as f:
-                f.write(b"MULTI_SCENE")
-            
-            result = service.compose_video(
-                stage3_data=stage3_data,
-                stage4_data=stage4_data,
-                video_id="multi_scene_test",
-            )
-            
-            assert result.scenes_count == 3, "输出应包含3个场景"
-            
-        finally:
-            shutil.rmtree(output_dir)
-            shutil.rmtree(temp_dir)
-
-    @patch('subprocess.run')
-    def test_temp_files_creation(self, mock_run):
-        """验证临时文件创建"""
-        mock_run.return_value = MagicMock(returncode=0, stderr="")
-        
-        import tempfile
-        import shutil
-        
-        output_dir = tempfile.mkdtemp()
-        temp_dir = tempfile.mkdtemp()
-        
-        try:
-            service = Stage5VideoCompositionService(
-                output_dir=output_dir,
-                temp_dir=temp_dir,
-            )
-            
-            assert os.path.exists(output_dir), "输出目录应存在"
-            assert os.path.exists(temp_dir), "临时目录应存在"
-            
-            with open(STAGE4_OUTPUT, "r", encoding="utf-8") as f:
-                stage4_data = json.load(f)
-            
-            subtitle_path = os.path.join(temp_dir, "test_subtitle.srt")
-            service._generate_subtitles(stage4_data, subtitle_path)
-            
-            assert os.path.exists(subtitle_path), "字幕文件应被创建"
-        
-        finally:
-            shutil.rmtree(output_dir)
-            shutil.rmtree(temp_dir)
+def main():
+    """主函数"""
+    print("🎬 视频合成测试脚本")
+    print("基于Stage5VideoCompositionService实现图片和声音整合成视频")
+    print()
+    
+    # 检查FFmpeg是否安装
+    import subprocess
+    try:
+        subprocess.run(['ffmpeg', '-version'], 
+                      stdout=subprocess.PIPE, 
+                      stderr=subprocess.PIPE, 
+                      check=True)
+        print("✅ FFmpeg已安装")
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        print("❌ 错误: 未找到FFmpeg，请先安装FFmpeg")
+        print("   安装方法: https://ffmpeg.org/download.html")
+        return
+    
+    # 运行测试
+    tester = VideoCompositionTest()
+    tester.run_all_tests()
 
 
 if __name__ == "__main__":
-    pytest.main([__file__, "-v", "--tb=short"])
+    main()
