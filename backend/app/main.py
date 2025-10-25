@@ -1,9 +1,11 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 from app.services.stage1_text_analysis import Stage1TextAnalysisService
 from app.services.stage2_image_prompt import Stage2ImagePromptService
-from app.models.schemas import Stage1Output, Stage2Output
+from app.services.stage4_tts import Stage4TTSService
+from app.services.stage5_video_composition import Stage5VideoCompositionService
+from app.models.schemas import Stage1Output, Stage2Output, Stage3Output, Stage4Output, Stage5Output
 
 app = FastAPI(
     title="Big Niu - Text to Video API",
@@ -19,6 +21,17 @@ class TextAnalysisRequest(BaseModel):
 
 class ImagePromptRequest(BaseModel):
     stage1_output: Stage1Output
+
+
+class TTSRequest(BaseModel):
+    stage1_output: Stage1Output
+    use_real_tts: Optional[bool] = False
+
+
+class VideoCompositionRequest(BaseModel):
+    stage3_data: List[dict]
+    stage4_data: dict
+    video_id: str
 
 
 @app.get("/")
@@ -68,6 +81,41 @@ async def stage2_generate_prompts(request: ImagePromptRequest):
             "total_prompts": len(prompts),
             "prompts": prompts
         }
+    
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+
+@app.post("/api/v1/stage4/generate-audio")
+async def stage4_generate_audio(request: TTSRequest):
+    try:
+        service = Stage4TTSService()
+        result = await service.generate_all_audio(
+            stage1_output=request.stage1_output,
+            use_real_tts=request.use_real_tts,
+        )
+        
+        return result.to_dict()
+    
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+
+@app.post("/api/v1/stage5/compose-video")
+async def stage5_compose_video(request: VideoCompositionRequest):
+    try:
+        service = Stage5VideoCompositionService()
+        result = service.compose_video(
+            stage3_data=request.stage3_data,
+            stage4_data=request.stage4_data,
+            video_id=request.video_id,
+        )
+        
+        return result.to_dict()
     
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
