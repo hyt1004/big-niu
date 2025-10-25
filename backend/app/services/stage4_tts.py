@@ -1,6 +1,6 @@
 import os
 import asyncio
-import httpx
+import requests
 import aiofiles
 import base64
 import json
@@ -241,36 +241,36 @@ class Stage4TTSService:
             }
             
             headers = {
-                "Authorization": f"Bearer {self.access_token}",
+                "Authorization": f"Bearer;{self.access_token}",
                 "Content-Type": "application/json"
             }
             
             api_url = "https://openspeech.bytedance.com/api/v1/tts"
             
-            async with httpx.AsyncClient(timeout=120.0) as client:
-                response = await client.post(api_url, json=request_json, headers=headers)
-                response.raise_for_status()
-                result = response.json()
-                
-                if "data" not in result or not result["data"]:
-                    error_msg = result.get("message", "Unknown error")
-                    raise ValueError(f"Invalid API response: {error_msg}")
-                
-                audio_b64 = result["data"]
-                if not isinstance(audio_b64, str) or len(audio_b64) > 10_000_000:
-                    raise ValueError("Invalid or oversized audio data")
-                
-                try:
-                    audio_data = base64.b64decode(audio_b64)
-                except Exception:
-                    raise ValueError("Invalid base64 encoded audio data")
-                
-                os.makedirs(os.path.dirname(output_path), exist_ok=True)
-                
-                async with aiofiles.open(output_path, "wb") as f:
-                    await f.write(audio_data)
-                
-                return output_path
+            response = requests.post(api_url, data=json.dumps(request_json), headers=headers)
+
+            
+            result = response.json()
+            
+            if "data" not in result or not result["data"]:
+                error_msg = result.get("message", "Unknown error")
+                raise ValueError(f"Invalid API response: {error_msg}")
+            
+            audio_b64 = result["data"]
+            if not isinstance(audio_b64, str) or len(audio_b64) > 10_000_000:
+                raise ValueError("Invalid or oversized audio data")
+            
+            try:
+                audio_data = base64.b64decode(audio_b64)
+            except Exception:
+                raise ValueError("Invalid base64 encoded audio data")
+            
+            os.makedirs(os.path.dirname(output_path), exist_ok=True)
+            
+            async with aiofiles.open(output_path, "wb") as f:
+                await f.write(audio_data)
+            
+            return output_path
                                     
         except ValueError:
             raise

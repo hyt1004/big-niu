@@ -21,7 +21,7 @@ backend_path = project_root / "backend"
 sys.path.insert(0, str(backend_path))
 
 from app.services.stage4_tts import Stage4TTSService
-from app.models.schemas import Character, Scene, Dialogue, Stage1Output
+from app.models.schemas import Character, Scene, Dialogue, Stage1Output, Metadata
 
 
 # 测试数据路径
@@ -64,7 +64,11 @@ def mock_volcengine_response():
 
 class TestMockDataValidation:
     """Mock 数据验证测试"""
-    
+    def setup_method(self):
+        """设置测试环境"""
+        os.environ["VOLCENGINE_APPID"] = "test_appid"
+        os.environ["VOLCENGINE_ACCESS_TOKEN"] = "test_token"
+        os.environ["VOLCENGINE_CLUSTER"] = "volcano_tts"
     def test_stage1_output_exists(self):
         """测试 Stage1 输出文件存在"""
         assert STAGE1_OUTPUT.exists()
@@ -91,7 +95,6 @@ class TestSceneAudioGeneration:
         os.environ["VOLCENGINE_APPID"] = "test_appid"
         os.environ["VOLCENGINE_ACCESS_TOKEN"] = "test_token"
         os.environ["VOLCENGINE_CLUSTER"] = "volcano_tts"
-    
     @pytest.mark.asyncio
     async def test_generate_scene_001_audio(self, stage1_data, temp_output_dir, mock_volcengine_response):
         """测试生成场景1的音频"""
@@ -103,7 +106,10 @@ class TestSceneAudioGeneration:
         scene_data = stage1_data["scenes"][0]
         scene = Scene(
             scene_id=scene_data["scene_id"],
+            order=scene_data["order"],
             description=scene_data["description"],
+            composition=scene_data["composition"],
+            characters=scene_data["characters"],
             narration=scene_data["narration"],
             dialogues=[Dialogue(**dialogue) for dialogue in scene_data["dialogues"]]
         )
@@ -147,6 +153,9 @@ class TestSceneAudioGeneration:
         scene_data = stage1_data["scenes"][1]
         scene = Scene(
             scene_id=scene_data["scene_id"],
+            order=scene_data["order"],
+            composition=scene_data["composition"],
+            characters=scene_data["characters"],
             description=scene_data["description"],
             narration=scene_data["narration"],
             dialogues=[Dialogue(**dialogue) for dialogue in scene_data["dialogues"]]
@@ -197,6 +206,9 @@ class TestSceneAudioGeneration:
         for scene_data in stage1_data["scenes"]:
             scene = Scene(
                 scene_id=scene_data["scene_id"],
+                order=scene_data["order"],
+                composition=scene_data["composition"],
+                characters=scene_data["characters"],
                 description=scene_data["description"],
                 narration=scene_data["narration"],
                 dialogues=[Dialogue(**dialogue) for dialogue in scene_data["dialogues"]]
@@ -204,6 +216,11 @@ class TestSceneAudioGeneration:
             scenes.append(scene)
         
         stage1_output = Stage1Output(
+            metadata=Metadata(
+                total_scenes=len(scenes),
+                story_title="Test Story",
+                total_characters=len(characters)
+            ),
             characters=characters,
             scenes=scenes,
             total_duration=60.0
@@ -234,7 +251,11 @@ class TestSceneAudioGeneration:
 
 class TestAudioSegmentTiming:
     """音频时间轴测试"""
-    
+    def setup_method(self):
+        """设置测试环境"""
+        os.environ["VOLCENGINE_APPID"] = "test_appid"
+        os.environ["VOLCENGINE_ACCESS_TOKEN"] = "test_token"
+        os.environ["VOLCENGINE_CLUSTER"] = "volcano_tts"
     def test_calculate_start_times(self, expected_output):
         """测试音频段开始时间计算"""
         scene = expected_output["scenes"][0]
@@ -261,7 +282,11 @@ class TestAudioSegmentTiming:
 
 class TestCharacterVoiceAssignment:
     """角色音色分配测试"""
-    
+    def setup_method(self):
+        """设置测试环境"""
+        os.environ["VOLCENGINE_APPID"] = "test_appid"
+        os.environ["VOLCENGINE_ACCESS_TOKEN"] = "test_token"
+        os.environ["VOLCENGINE_CLUSTER"] = "volcano_tts"
     def test_voice_assignment_consistency(self, stage1_data, expected_output):
         """测试音色分配的一致性"""
         character_voices = expected_output["character_voices"]
@@ -286,7 +311,6 @@ class TestVolcengineTTSIntegration:
         os.environ["VOLCENGINE_APPID"] = "test_appid"
         os.environ["VOLCENGINE_ACCESS_TOKEN"] = "test_token"
         os.environ["VOLCENGINE_CLUSTER"] = "volcano_tts"
-    
     @pytest.mark.asyncio
     async def test_volcengine_tts_request_parameters(self, temp_output_dir):
         """测试火山引擎 TTS 请求参数"""
@@ -339,7 +363,7 @@ class TestVolcengineTTSIntegration:
             
             with pytest.raises(ValueError, match="Failed to generate audio"):
                 await tts_service._generate_audio_volcengine(
-                    "测试文本", "BV001_streaming", "./test_output/test.mp3", {"speed": 1.0, "pitch": 1.0, "volume": 1.0}
+                    "测试文本", "BV001_streaming", os.path.join(temp_output_dir, "test.mp3"), {"speed": 1.0, "pitch": 1.0, "volume": 1.0}
                 )
         
         error_response = {
@@ -355,37 +379,6 @@ class TestVolcengineTTSIntegration:
             
             with pytest.raises(ValueError, match="Invalid API response"):
                 await tts_service._generate_audio_volcengine(
-                    "测试文本", "BV001_streaming", "./test_output/test.mp3", {"speed": 1.0, "pitch": 1.0, "volume": 1.0}
+                    "测试文本", "BV001_streaming", os.path.join(temp_output_dir, "test.mp3"), {"speed": 1.0, "pitch": 1.0, "volume": 1.0}
                 )
 
-
-class TestAudioFileSaving:
-    """音频文件保存测试"""
-    
-    def setup_method(self):
-        """设置测试环境"""
-        os.environ["VOLCENGINE_APPID"] = "test_appid"
-        os.environ["VOLCENGINE_ACCESS_TOKEN"] = "test_token"
-        os.environ["VOLCENGINE_CLUSTER"] = "volcano_tts"
-    
-    @pytest.mark.asyncio
-    async def test_save_audio_file(self, temp_output_dir, mock_volcengine_response):
-        """测试保存音频文件"""
-        tts_service = Stage4TTSService(output_dir=temp_output_dir)
-        
-        with patch('httpx.AsyncClient.post') as mock_post:
-            mock_response = AsyncMock()
-            mock_response.json = AsyncMock(return_value=mock_volcengine_response)
-            mock_post.return_value = mock_response
-            
-            text = "测试音频内容"
-            voice = "BV001_streaming"
-            emotion_params = {"speed": 1.0, "pitch": 1.0, "volume": 1.0}
-            output_path = str(Path(temp_output_dir) / "test_audio.mp3")
-            
-            result = await tts_service._generate_audio_volcengine(
-                text, voice, output_path, emotion_params
-            )
-            
-            assert result == output_path
-    

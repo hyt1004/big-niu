@@ -23,6 +23,12 @@ from app.models.schemas import Character, Scene, Dialogue, Stage1Output
 
 class TestVoiceMapping:
     """音色映射测试"""
+
+    def setup_method(self):
+        """设置测试环境"""
+        os.environ["VOLCENGINE_APPID"] = "test_appid"
+        os.environ["VOLCENGINE_ACCESS_TOKEN"] = "test_token"
+        os.environ["VOLCENGINE_CLUSTER"] = "volcano_tts"
     
     def test_assign_voice(self):
         """测试角色音色分配"""
@@ -59,6 +65,12 @@ class TestVoiceMapping:
 
 class TestEmotionMapping:
     """情绪参数映射测试"""
+
+    def setup_method(self):
+        """设置测试环境"""
+        os.environ["VOLCENGINE_APPID"] = "test_appid"
+        os.environ["VOLCENGINE_ACCESS_TOKEN"] = "test_token"
+        os.environ["VOLCENGINE_CLUSTER"] = "volcano_tts"
     
     def test_map_emotion_to_params(self):
         """测试情绪到语音参数的映射"""
@@ -89,6 +101,12 @@ class TestEmotionMapping:
 class TestDurationEstimation:
     """音频时长估算测试"""
     
+    def setup_method(self):
+        """设置测试环境"""
+        os.environ["VOLCENGINE_APPID"] = "test_appid"
+        os.environ["VOLCENGINE_ACCESS_TOKEN"] = "test_token"
+        os.environ["VOLCENGINE_CLUSTER"] = "volcano_tts"
+
     def test_estimate_chinese_duration(self):
         """测试中文文本时长估算"""
         tts_service = Stage4TTSService(output_dir="./test_output")
