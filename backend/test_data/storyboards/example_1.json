@@ -1,0 +1,36 @@
+{
+  "rows": 3,
+  "columns": 6,
+  "cells": [
+    {
+      "shot_number": 1,
+      "scene_image": "/api/v1/bigniu/images/test/scene_1.png",
+      "scene_description": "一个美丽的大草原，有绿色的草地和绿树",
+      "dialogue": "多么漂亮的草原啊",
+      "main_character": "小草先生",
+      "shooting_distance": 0.8,
+      "dynamic_intensity": 0.3,
+      "scene_atmosphere": 0.9
+    },
+    {
+      "shot_number": 2,
+      "scene_image": "/api/v1/bigniu/images/test/scene_2.png",
+      "scene_description": "一条弯弯的河流，有绿色的草地和绿树",
+      "dialogue": "多么清澈的河水啊",
+      "main_character": "小草先生",
+      "shooting_distance": 0.6,
+      "dynamic_intensity": 0.4,
+      "scene_atmosphere": 0.8
+    },
+    {
+      "shot_number": 3,
+      "scene_image": "/api/v1/bigniu/images/test/scene_3.png",
+      "scene_description": "一只小鸟，在树上唱歌",
+      "dialogue": "多么动听的歌声啊",
+      "main_character": "小鸟先生",
+      "shooting_distance": 0.4,
+      "dynamic_intensity": 0.6,
+      "scene_atmosphere": 0.7
+    }
+  ]
+}
