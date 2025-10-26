@@ -15,14 +15,31 @@ const StoryboardInfoBar: React.FC<StoryboardInfoBarProps> = ({
   onExpand,
   onSubmit,
 }) => {
-  if (!storyboard && !loading) return null;
-
   if (loading) {
     return (
       <div className="storyboard-info-bar">
         <div className="storyboard-loading">
           <div className="spinner"></div>
           <span>正在生成分镜表...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (!storyboard) {
+    return (
+      <div className="storyboard-info-bar">
+        <div className="storyboard-header">
+          <h3>分镜表预览</h3>
+          <div className="storyboard-stats">
+            <span>0 行</span>
+            <span>·</span>
+            <span>0 个镜头</span>
+          </div>
+        </div>
+        <div className="storyboard-placeholder">
+          <p>分镜表功能已启用</p>
+          <p>提交文本后将自动生成分镜表</p>
         </div>
       </div>
     );
