@@ -265,11 +265,20 @@ class ApiService {
     if (!this.clientId) throw new Error('Client not registered');
 
     try {
-      const response = await this.axiosInstance.get<ApiResponse<VideoStatus>>(
+      const response = await this.axiosInstance.get<any>(
         `/api/v1/bigniu/video/status/${this.clientId}`
       );
       
-      return response.data.success ? response.data.data || null : null;
+      if (response.data.success) {
+        // 后端直接返回状态数据，不在 data 字段中
+        return {
+          status: response.data.status,
+          url: response.data.url,
+          progress: response.data.progress,
+          error: response.data.error
+        };
+      }
+      return null;
     } catch (error) {
       console.error('Failed to get video status:', error);
       return null;

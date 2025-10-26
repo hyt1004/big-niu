@@ -21,15 +21,27 @@ const ModelConfig: React.FC<ModelConfigProps> = ({ config, onChange, onSave, onS
     setLoading(true);
     try {
       const response = await apiService.getModelConfig();
+      console.log('Loaded config from backend:', response);
       if (response) {
+        // 转换旧的 0-100 范围数据到新的 0-1 范围
+        const convertValue = (value: number): number => {
+          if (value > 1) {
+            // 旧数据是 0-100，转换为 0-1
+            console.log(`Converting old value ${value} to ${value / 100}`);
+            return value / 100;
+          }
+          return value;
+        };
+        
         const convertedConfig = {
           ...response,
-          atmosphere: response.atmosphere,
-          distance: response.distance,
-          realism: response.realism,
-          dynamic: response.dynamic,
+          atmosphere: convertValue(response.atmosphere),
+          distance: convertValue(response.distance),
+          realism: convertValue(response.realism),
+          dynamic: convertValue(response.dynamic),
           shot_direction: response.shot_direction || 'horizontal',
         };
+        console.log('Converted config:', convertedConfig);
         onChange(convertedConfig);
       }
     } catch (err) {
@@ -289,7 +301,7 @@ const ModelConfig: React.FC<ModelConfigProps> = ({ config, onChange, onSave, onS
           <input
             key={index}
             type="text"
-            placeholder={index < 2 ? `角色 ${index + 1}` : `请输入角色 ${index + 1} 描述`}
+            placeholder={`请输入角色 ${index + 1} 描述`}
             value={char}
             onChange={(e) => handleCharacterChange(index, e.target.value)}
             className="character-input"

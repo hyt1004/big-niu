@@ -42,26 +42,6 @@
   font-weight: 600;
 }
 
-.close-btn {
-  background: none;
-  border: none;
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 32px;
-  cursor: pointer;
-  width: 40px;
-  height: 40px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-}
-
-.close-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: #ffffff;
-}
-
 .storyboard-page-content {
   flex: 1;
   overflow: auto;
@@ -166,18 +146,109 @@
   min-height: 60px;
 }
 
-.storyboard-table input[type="range"] {
-  width: 100%;
-  margin: 4px 0;
+.number-control {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  justify-content: center;
 }
 
-.slider-value {
-  display: block;
+.number-input {
+  width: 60px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  padding: 6px 8px;
+  color: #ffffff;
+  font-size: 14px;
+  font-family: inherit;
+  text-align: center;
+  transition: all 0.2s;
+}
+
+.number-input:focus {
+  outline: none;
+  border-color: #667eea;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+}
+
+.number-input::-webkit-outer-spin-button,
+.number-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.number-input[type=number] {
+  -moz-appearance: textfield;
+}
+
+.number-btn {
+  width: 28px;
+  height: 28px;
+  background: rgba(102, 126, 234, 0.2);
+  border: 1px solid rgba(102, 126, 234, 0.3);
+  border-radius: 4px;
+  color: #667eea;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  line-height: 1;
+}
+
+.number-btn:hover {
+  background: rgba(102, 126, 234, 0.3);
+  border-color: #667eea;
+  transform: scale(1.05);
+}
+
+.number-btn:active {
+  transform: scale(0.95);
+}
+
+.number-btn-minus {
+  color: #f87171;
+  background: rgba(248, 113, 113, 0.1);
+  border-color: rgba(248, 113, 113, 0.3);
+}
+
+.number-btn-minus:hover {
+  background: rgba(248, 113, 113, 0.2);
+  border-color: #f87171;
+}
+
+.number-btn-plus {
+  color: #34d399;
+  background: rgba(52, 211, 153, 0.1);
+  border-color: rgba(52, 211, 153, 0.3);
+}
+
+.number-btn-plus:hover {
+  background: rgba(52, 211, 153, 0.2);
+  border-color: #34d399;
+}
+
+.readonly-text {
+  padding: 8px 12px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 13px;
+  line-height: 1.5;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  min-height: 60px;
+}
+
+.readonly-number {
   text-align: center;
   color: #667eea;
-  font-size: 12px;
+  font-size: 16px;
   font-weight: 600;
-  margin-top: 4px;
+  padding: 12px;
 }
 
 .storyboard-page-footer {

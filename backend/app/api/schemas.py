@@ -74,10 +74,10 @@ class ModelConfig(BaseModel):
     random_composition: bool = Field(default=False, description="随机构图开关")
     random_shot: bool = Field(default=False, description="随机镜头开关")
     shot_direction: str = Field(default="horizontal", description="拍摄方向: horizontal/vertical")
-    atmosphere: int = Field(default=50, ge=0, le=100, description="氛围度 0-100")
-    distance: int = Field(default=50, ge=0, le=100, description="距离感 0-100")
-    realism: int = Field(default=50, ge=0, le=100, description="真实感 0-100")
-    dynamic: int = Field(default=50, ge=0, le=100, description="动态感 0-100")
+    atmosphere: float = Field(default=0.5, ge=0.0, le=1.0, description="氛围度 0-1")
+    distance: float = Field(default=0.5, ge=0.0, le=1.0, description="距离感 0-1")
+    realism: float = Field(default=0.5, ge=0.0, le=1.0, description="真实感 0-1")
+    dynamic: float = Field(default=0.5, ge=0.0, le=1.0, description="动态感 0-1")
     characters: List[str] = Field(default_factory=list, description="角色列表")
 
 
@@ -180,6 +180,7 @@ class VideoStatusResponse(BaseModel):
     success: bool
     status: str
     progress: int = 0
+    url: Optional[str] = None
     video_info: Optional[Dict[str, Any]] = None
 
 

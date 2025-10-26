@@ -42,10 +42,7 @@ const StoryboardPage: React.FC<StoryboardPageProps> = ({
     <div className="storyboard-page-overlay" onClick={onClose}>
       <div className="storyboard-page-container" onClick={(e) => e.stopPropagation()}>
         <div className="storyboard-page-header">
-          <h2>分镜表编辑</h2>
-          <button className="close-btn" onClick={onClose}>
-            ×
-          </button>
+          <h2>{isExample ? '分镜表示例' : '分镜表编辑'}</h2>
         </div>
 
         <div className="storyboard-page-content">
@@ -75,68 +72,191 @@ const StoryboardPage: React.FC<StoryboardPageProps> = ({
                       )}
                     </td>
                     <td>
-                      <textarea
-                        value={cell.scene_description}
-                        onChange={(e) =>
-                          handleCellChange(index, 'scene_description', e.target.value)
-                        }
-                        rows={3}
-                      />
+                      {isExample ? (
+                        <div className="readonly-text">{cell.scene_description}</div>
+                      ) : (
+                        <textarea
+                          value={cell.scene_description}
+                          onChange={(e) =>
+                            handleCellChange(index, 'scene_description', e.target.value)
+                          }
+                          rows={3}
+                        />
+                      )}
                     </td>
                     <td>
-                      <textarea
-                        value={cell.dialogue}
-                        onChange={(e) => handleCellChange(index, 'dialogue', e.target.value)}
-                        rows={3}
-                      />
+                      {isExample ? (
+                        <div className="readonly-text">{cell.dialogue}</div>
+                      ) : (
+                        <textarea
+                          value={cell.dialogue}
+                          onChange={(e) => handleCellChange(index, 'dialogue', e.target.value)}
+                          rows={3}
+                        />
+                      )}
                     </td>
                     <td>
-                      <input
-                        type="text"
-                        value={cell.main_character}
-                        onChange={(e) =>
-                          handleCellChange(index, 'main_character', e.target.value)
-                        }
-                      />
+                      {isExample ? (
+                        <div className="readonly-text">{cell.main_character}</div>
+                      ) : (
+                        <input
+                          type="text"
+                          value={cell.main_character}
+                          onChange={(e) =>
+                            handleCellChange(index, 'main_character', e.target.value)
+                          }
+                        />
+                      )}
                     </td>
                     <td>
-                      <input
-                        type="range"
-                        min="0"
-                        max="10"
-                        step="0.1"
-                        value={cell.shooting_distance}
-                        onChange={(e) =>
-                          handleCellChange(index, 'shooting_distance', parseFloat(e.target.value))
-                        }
-                      />
-                      <span className="slider-value">{cell.shooting_distance.toFixed(1)}</span>
+                      {isExample ? (
+                        <div className="readonly-number">{cell.shooting_distance.toFixed(1)}</div>
+                      ) : (
+                        <div className="number-control">
+                          <button
+                            type="button"
+                            className="number-btn number-btn-minus"
+                            onClick={() => {
+                              const newValue = Math.max(0, cell.shooting_distance - 0.1);
+                              handleCellChange(index, 'shooting_distance', parseFloat(newValue.toFixed(1)));
+                            }}
+                          >
+                            −
+                          </button>
+                          <input
+                            type="number"
+                            min="0"
+                            max="1"
+                            step="0.1"
+                            value={cell.shooting_distance}
+                            onChange={(e) => {
+                              const val = parseFloat(e.target.value);
+                              if (!isNaN(val) && val >= 0 && val <= 1) {
+                                handleCellChange(index, 'shooting_distance', val);
+                              }
+                            }}
+                            onBlur={(e) => {
+                              const val = parseFloat(e.target.value);
+                              if (isNaN(val) || val < 0) {
+                                handleCellChange(index, 'shooting_distance', 0);
+                              } else if (val > 1) {
+                                handleCellChange(index, 'shooting_distance', 1);
+                              }
+                            }}
+                            className="number-input"
+                          />
+                          <button
+                            type="button"
+                            className="number-btn number-btn-plus"
+                            onClick={() => {
+                              const newValue = Math.min(1, cell.shooting_distance + 0.1);
+                              handleCellChange(index, 'shooting_distance', parseFloat(newValue.toFixed(1)));
+                            }}
+                          >
+                            +
+                          </button>
+                        </div>
+                      )}
                     </td>
                     <td>
-                      <input
-                        type="range"
-                        min="0"
-                        max="10"
-                        step="0.1"
-                        value={cell.dynamic_intensity}
-                        onChange={(e) =>
-                          handleCellChange(index, 'dynamic_intensity', parseFloat(e.target.value))
-                        }
-                      />
-                      <span className="slider-value">{cell.dynamic_intensity.toFixed(1)}</span>
+                      {isExample ? (
+                        <div className="readonly-number">{cell.dynamic_intensity.toFixed(1)}</div>
+                      ) : (
+                        <div className="number-control">
+                          <button
+                            type="button"
+                            className="number-btn number-btn-minus"
+                            onClick={() => {
+                              const newValue = Math.max(0, cell.dynamic_intensity - 0.1);
+                              handleCellChange(index, 'dynamic_intensity', parseFloat(newValue.toFixed(1)));
+                            }}
+                          >
+                            −
+                          </button>
+                          <input
+                            type="number"
+                            min="0"
+                            max="1"
+                            step="0.1"
+                            value={cell.dynamic_intensity}
+                            onChange={(e) => {
+                              const val = parseFloat(e.target.value);
+                              if (!isNaN(val) && val >= 0 && val <= 1) {
+                                handleCellChange(index, 'dynamic_intensity', val);
+                              }
+                            }}
+                            onBlur={(e) => {
+                              const val = parseFloat(e.target.value);
+                              if (isNaN(val) || val < 0) {
+                                handleCellChange(index, 'dynamic_intensity', 0);
+                              } else if (val > 1) {
+                                handleCellChange(index, 'dynamic_intensity', 1);
+                              }
+                            }}
+                            className="number-input"
+                          />
+                          <button
+                            type="button"
+                            className="number-btn number-btn-plus"
+                            onClick={() => {
+                              const newValue = Math.min(1, cell.dynamic_intensity + 0.1);
+                              handleCellChange(index, 'dynamic_intensity', parseFloat(newValue.toFixed(1)));
+                            }}
+                          >
+                            +
+                          </button>
+                        </div>
+                      )}
                     </td>
                     <td>
-                      <input
-                        type="range"
-                        min="0"
-                        max="10"
-                        step="0.1"
-                        value={cell.scene_atmosphere}
-                        onChange={(e) =>
-                          handleCellChange(index, 'scene_atmosphere', parseFloat(e.target.value))
-                        }
-                      />
-                      <span className="slider-value">{cell.scene_atmosphere.toFixed(1)}</span>
+                      {isExample ? (
+                        <div className="readonly-number">{cell.scene_atmosphere.toFixed(1)}</div>
+                      ) : (
+                        <div className="number-control">
+                          <button
+                            type="button"
+                            className="number-btn number-btn-minus"
+                            onClick={() => {
+                              const newValue = Math.max(0, cell.scene_atmosphere - 0.1);
+                              handleCellChange(index, 'scene_atmosphere', parseFloat(newValue.toFixed(1)));
+                            }}
+                          >
+                            −
+                          </button>
+                          <input
+                            type="number"
+                            min="0"
+                            max="1"
+                            step="0.1"
+                            value={cell.scene_atmosphere}
+                            onChange={(e) => {
+                              const val = parseFloat(e.target.value);
+                              if (!isNaN(val) && val >= 0 && val <= 1) {
+                                handleCellChange(index, 'scene_atmosphere', val);
+                              }
+                            }}
+                            onBlur={(e) => {
+                              const val = parseFloat(e.target.value);
+                              if (isNaN(val) || val < 0) {
+                                handleCellChange(index, 'scene_atmosphere', 0);
+                              } else if (val > 1) {
+                                handleCellChange(index, 'scene_atmosphere', 1);
+                              }
+                            }}
+                            className="number-input"
+                          />
+                          <button
+                            type="button"
+                            className="number-btn number-btn-plus"
+                            onClick={() => {
+                              const newValue = Math.min(1, cell.scene_atmosphere + 0.1);
+                              handleCellChange(index, 'scene_atmosphere', parseFloat(newValue.toFixed(1)));
+                            }}
+                          >
+                            +
+                          </button>
+                        </div>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -151,7 +271,7 @@ const StoryboardPage: React.FC<StoryboardPageProps> = ({
           </button>
           {!isExample && (
             <button className="btn-save-storyboard" onClick={handleSave}>
-              保存并生成视频
+              保存
             </button>
           )}
         </div>

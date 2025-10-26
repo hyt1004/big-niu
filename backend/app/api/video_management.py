@@ -157,6 +157,7 @@ async def get_video_status(client_id: str):
             success=True,
             status="not_started",
             progress=0,
+            url=None,
             video_info=None
         )
     
@@ -164,10 +165,17 @@ async def get_video_status(client_id: str):
         with open(video_info_file, 'r', encoding='utf-8') as f:
             video_info = json.load(f)
         
+        status = video_info.get("status", "unknown")
+        
+        video_url = None
+        if status == "completed":
+            video_url = f"/api/v1/bigniu/video/download/{client_id}"
+        
         return VideoStatusResponse(
             success=True,
-            status=video_info.get("status", "unknown"),
-            progress=100 if video_info.get("status") == "completed" else 0,
+            status=status,
+            progress=100 if status == "completed" else 0,
+            url=video_url,
             video_info=video_info
         )
     

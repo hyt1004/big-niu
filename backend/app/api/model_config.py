@@ -18,10 +18,10 @@ def get_default_model_config() -> dict:
         "random_composition": False,
         "random_shot": False,
         "shot_direction": "horizontal",
-        "atmosphere": 50,
-        "distance": 50,
-        "realism": 50,
-        "dynamic": 50,
+        "atmosphere": 0.5,
+        "distance": 0.5,
+        "realism": 0.5,
+        "dynamic": 0.5,
         "characters": []
     }
 
