@@ -117,6 +117,7 @@ function App() {
     if (!enabled) {
       setStoryboardData(null);
     }
+    // 不在这里清除视频，让用户看到之前的视频
   };
   
   const handleStoryboardCellUpdate = (shotNumber: number, field: keyof StoryboardCell, value: any) => {
@@ -174,8 +175,9 @@ function App() {
       return;
     }
     
+    // 清除旧的视频数据
+    setVideoUrl(undefined);
     setCurrentStep(2);
-    setIsGenerating(true);
     
     try {
       await apiService.submitNovel({
@@ -186,6 +188,7 @@ function App() {
       showMessage('小说文本已提交', 'success');
 
       if (storyboardEnabled) {
+        // 启用分镜表时，不显示视频生成中，等待用户编辑分镜表
         setStoryboardLoading(true);
         setCurrentStep(3);
         setTimeout(async () => {
@@ -193,17 +196,20 @@ function App() {
             const data = await apiService.getStoryboard();
             if (data) {
               setStoryboardData(data);
-              showMessage('分镜表已生成', 'success');
+              showMessage('分镜表已生成，请编辑后提交', 'success');
               setCurrentStep(4);
             }
           } catch (error) {
             console.error('Failed to get storyboard:', error);
             showMessage('分镜表生成失败', 'error');
+            setCurrentStep(1);
           } finally {
             setStoryboardLoading(false);
           }
         }, 2000);
       } else {
+        // 不启用分镜表时，直接开始生成视频
+        setIsGenerating(true);
         setCurrentStep(4);
         checkVideoStatus();
       }
@@ -211,7 +217,6 @@ function App() {
       console.error('Failed to submit novel:', error);
       showMessage('提交失败,请重试', 'error');
       setCurrentStep(1);
-    } finally {
       setIsGenerating(false);
     }
   };
@@ -255,7 +260,10 @@ function App() {
     const interval = setInterval(async () => {
       try {
         const status = await apiService.getVideoStatus();
+        console.log('Video status received:', status);
+        
         if (status?.status === 'completed' && status.url) {
+          console.log('Video completed, URL:', status.url);
           setVideoUrl(status.url);
           setIsGenerating(false);
           showMessage('视频生成完成', 'success');
@@ -266,6 +274,8 @@ function App() {
           showMessage('视频生成失败: ' + (status.error || '未知错误'), 'error');
           setCurrentStep(1);
           clearInterval(interval);
+        } else {
+          console.log('Video still processing, status:', status?.status);
         }
       } catch (error) {
         console.error('Failed to check video status:', error);
@@ -501,40 +511,50 @@ function App() {
           </div>
           
           <div className="workspace-content">
-            <div className="input-section">
-              <NovelInput
-                onTextChange={setNovelText}
-                onGenerate={handleGenerate}
-                storyboardEnabled={storyboardEnabled}
-                onStoryboardToggle={handleStoryboardToggle}
-                storyboardData={storyboardData}
-                storyboardLoading={storyboardLoading}
-                onStoryboardCellUpdate={handleStoryboardCellUpdate}
-                onSaveStoryboard={handleSaveStoryboard}
-                onShowMessage={showMessage}
-              />
+            <div className="workspace-main">
+              <div className="input-section">
+                <NovelInput
+                  onTextChange={setNovelText}
+                  onGenerate={handleGenerate}
+                  storyboardEnabled={storyboardEnabled}
+                  onStoryboardToggle={handleStoryboardToggle}
+                  storyboardData={storyboardData}
+                  storyboardLoading={storyboardLoading}
+                  onStoryboardCellUpdate={handleStoryboardCellUpdate}
+                  onSaveStoryboard={handleSaveStoryboard}
+                  onShowMessage={showMessage}
+                />
+              </div>
               
-              {storyboardEnabled && (
-                <div className="storyboard-info-section">
-                  <StoryboardInfoBar
-                    storyboard={storyboardData}
-                    loading={storyboardLoading}
-                    onExpand={() => {
-                      setIsExampleStoryboard(false);
-                      setShowStoryboardPage(true);
-                    }}
-                    onSubmit={handleStoryboardSubmit}
-                  />
-                </div>
-              )}
+              <div className="output-section">
+                <VideoOutput
+                  videoUrl={videoUrl}
+                  isGenerating={isGenerating}
+                />
+              </div>
             </div>
             
-            <div className="output-section">
-              <VideoOutput
-                videoUrl={videoUrl}
-                isGenerating={isGenerating}
-              />
-            </div>
+            {storyboardEnabled && (
+              <div className="storyboard-info-section">
+                <StoryboardInfoBar
+                  storyboard={storyboardData}
+                  loading={storyboardLoading}
+                  onExpand={() => {
+                    setIsExampleStoryboard(false);
+                    setShowStoryboardPage(true);
+                  }}
+                  onSubmit={handleStoryboardSubmit}
+                  onCellUpdate={(cells) => {
+                    if (storyboardData) {
+                      setStoryboardData({
+                        ...storyboardData,
+                        cells: cells,
+                      });
+                    }
+                  }}
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>

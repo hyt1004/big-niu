@@ -447,21 +447,35 @@ body {
 
 .workspace-content {
   flex: 1;
-  display: grid;
-  grid-template-columns: 1.2fr 0.8fr;
+  display: flex;
+  flex-direction: column;
   gap: 20px;
   padding: 20px 24px;
+  overflow-x: auto;
 }
 
-.input-section,
+.workspace-main {
+  display: grid;
+  grid-template-columns: minmax(400px, 1fr) minmax(350px, 450px);
+  gap: 20px;
+  align-items: start;
+}
+
+.input-section {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
 .output-section {
   display: flex;
   flex-direction: column;
+  min-width: 350px;
 }
 
 .storyboard-info-section {
-  margin-top: 16px;
   width: 100%;
+  margin-top: 0;
 }
 
 .modal-overlay {
@@ -528,8 +542,13 @@ body {
     grid-template-columns: 280px 1fr;
   }
   
-  .workspace-content {
+  .workspace-main {
     grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .output-section {
+    min-width: auto;
   }
 }
 
@@ -565,6 +584,10 @@ body {
 
   .workspace-content {
     padding: 16px;
+    gap: 16px;
+  }
+  
+  .workspace-main {
     gap: 16px;
   }
   
