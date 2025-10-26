@@ -201,7 +201,7 @@ class ApiService {
     }
   }
 
-  async submitNovel(request: NovelSubmitRequest): Promise<boolean> {
+  async submitNovel(request: NovelSubmitRequest): Promise<ApiResponse> {
     if (!this.clientId) throw new Error('Client not registered');
 
     try {
@@ -210,7 +210,7 @@ class ApiService {
         request
       );
       
-      return response.data.success;
+      return response.data;
     } catch (error) {
       console.error('Failed to submit novel:', error);
       throw error;
@@ -245,7 +245,7 @@ class ApiService {
     }
   }
 
-  async saveStoryboard(storyboard: StoryboardTable): Promise<boolean> {
+  async saveStoryboard(storyboard: StoryboardTable): Promise<ApiResponse> {
     if (!this.clientId) throw new Error('Client not registered');
 
     try {
@@ -254,7 +254,7 @@ class ApiService {
         storyboard
       );
       
-      return response.data.success;
+      return response.data;
     } catch (error) {
       console.error('Failed to save storyboard:', error);
       throw error;

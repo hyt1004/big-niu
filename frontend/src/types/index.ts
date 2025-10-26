@@ -70,7 +70,7 @@ export interface ApiResponse<T = any> {
 
 export interface NovelSubmitRequest {
   text: string;
-  use_storyboard: boolean;
+  storyboard_enabled: boolean;
   prompt?: string;
 }
 

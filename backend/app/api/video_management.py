@@ -131,7 +131,7 @@ async def generate_video(client_id: str, request: VideoGenerationRequest):
         
         return VideoGenerationResponse(
             success=True,
-            message="视频生成成功",
+            message="视频生成成功（功能开发中，使用测试数据）",
             status_code=0,
             video_filename=final_video,
             images_count=len(images),

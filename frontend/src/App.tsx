@@ -180,12 +180,17 @@ function App() {
     setCurrentStep(2);
     
     try {
-      await apiService.submitNovel({
+      const result = await apiService.submitNovel({
         text: novelText,
-        use_storyboard: storyboardEnabled,
+        storyboard_enabled: storyboardEnabled,
       });
 
-      showMessage('小说文本已提交', 'success');
+      const isStubMessage = result.message?.includes('功能开发中') || result.message?.includes('测试数据');
+      if (isStubMessage) {
+        showMessage(result.message || '小说文本已提交', 'info');
+      } else {
+        showMessage(result.message || '小说文本已提交', 'success');
+      }
 
       if (storyboardEnabled) {
         // 启用分镜表时，不显示视频生成中，等待用户编辑分镜表
@@ -208,10 +213,11 @@ function App() {
           }
         }, 2000);
       } else {
-        // 不启用分镜表时，直接开始生成视频
         setIsGenerating(true);
-        setCurrentStep(4);
-        checkVideoStatus();
+        setCurrentStep(3);
+        setTimeout(() => {
+          checkVideoStatus();
+        }, 2000);
       }
     } catch (error) {
       console.error('Failed to submit novel:', error);
@@ -229,8 +235,13 @@ function App() {
     setCurrentStep(5);
 
     try {
-      await apiService.saveStoryboard(storyboardData);
-      showMessage('分镜表已提交,开始生成视频', 'success');
+      const result = await apiService.saveStoryboard(storyboardData);
+      const isStubMessage = result.message?.includes('功能开发中') || result.message?.includes('测试数据');
+      if (isStubMessage) {
+        showMessage(result.message || '分镜表已提交', 'info');
+      } else {
+        showMessage(result.message || '分镜表已提交,开始生成视频', 'success');
+      }
       checkVideoStatus();
     } catch (error) {
       console.error('Failed to save storyboard:', error);
@@ -246,8 +257,13 @@ function App() {
     setCurrentStep(5);
 
     try {
-      await apiService.saveStoryboard(updatedStoryboard);
-      showMessage('分镜表已保存,开始生成视频', 'success');
+      const result = await apiService.saveStoryboard(updatedStoryboard);
+      const isStubMessage = result.message?.includes('功能开发中') || result.message?.includes('测试数据');
+      if (isStubMessage) {
+        showMessage(result.message || '分镜表已保存', 'info');
+      } else {
+        showMessage(result.message || '分镜表已保存,开始生成视频', 'success');
+      }
       checkVideoStatus();
     } catch (error) {
       console.error('Failed to save storyboard:', error);
