@@ -10,6 +10,13 @@ from typing import Optional, List, Dict
 from app.config import settings
 from app.models.schemas import Stage1Output, Character, Scene, Dialogue
 
+try:
+    from mutagen.mp3 import MP3
+    MUTAGEN_AVAILABLE = True
+except ImportError:
+    MUTAGEN_AVAILABLE = False
+    print("Warning: mutagen not available, will use estimated duration")
+
 
 class AudioSegment:
     def __init__(
@@ -95,11 +102,11 @@ class Stage4TTSService:
     # 火山引擎 TTS 语音类型映射
     VOICE_MAPPING = {
         "narrator": "BV001_streaming",  # 标准女声
-        "male_middle_aged": "BV700_streaming",  # 标准男声
-        "male_young": "BV701_streaming",  # 年轻男声
-        "female_elderly": "BV002_streaming",  # 成熟女声
-        "female_young": "BV001_streaming",  # 标准女声
-        "male_elderly": "BV700_streaming",  # 标准男声
+        "male_middle_aged": "BV002_streaming",  # 标准男声
+        "male_young": "BV123_streaming",  # 年轻男声
+        "female_elderly": "BV157_streaming",  # 成熟女声
+        "female_young": "BV104_streaming",  # 年轻女声
+        "male_elderly": "BV158_streaming",  # 标准男声
     }
 
     def __init__(self, output_dir: str = "./output/audio"):
@@ -123,6 +130,23 @@ class Stage4TTSService:
         english_duration = english_words * 0.35
         
         return max(1.0, chinese_duration + english_duration)
+    
+    def _get_audio_duration(self, audio_path: str) -> float:
+        """获取音频文件的真实时长"""
+        if not os.path.exists(audio_path):
+            return 0.0
+            
+        try:
+            if MUTAGEN_AVAILABLE:
+                audio = MP3(audio_path)
+                return float(audio.info.length)
+            else:
+                # 如果没有mutagen，使用估算时长作为fallback
+                print(f"Warning: Cannot read actual duration for {audio_path}, using estimated duration")
+                return 0.0
+        except Exception as e:
+            print(f"Error reading audio duration for {audio_path}: {e}")
+            return 0.0
 
     def _assign_voice(
         self,
@@ -364,6 +388,12 @@ class Stage4TTSService:
                     output_path=segment.audio_path,
                     emotion_params=emotion_params,
                 )
+                
+                # 读取真实音频时长并更新
+                actual_duration = self._get_audio_duration(segment.audio_path)
+                if actual_duration > 0:
+                    segment.duration = actual_duration
+                    print(f"Updated duration for {segment.audio_path}: {actual_duration:.2f}s")
         else:
             for segment in scene_audio.audio_segments:
                 await self._generate_audio_mock(
@@ -371,6 +401,14 @@ class Stage4TTSService:
                     voice=segment.voice,
                     output_path=segment.audio_path,
                 )
+        
+        # 重新计算start_time和总时长
+        current_time = 0.0
+        for segment in scene_audio.audio_segments:
+            segment.start_time = current_time
+            current_time += segment.duration
+        
+        scene_audio.total_duration = current_time
         
         return scene_audio
 

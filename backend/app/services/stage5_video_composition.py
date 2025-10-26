@@ -89,7 +89,7 @@ class Stage5VideoCompositionService:
         for idx, scene in enumerate(stage4_data["scenes"]):
             if idx > 0:
                 screen_start_time += stage4_data["scenes"][idx - 1]["total_duration"]
-            for segment in enumerate(scene["audio_segments"]):
+            for segment in scene["audio_segments"]:
                 start_time = screen_start_time + segment["start_time"]
                 end_time = start_time + segment["duration"]
                 text = segment["text"]
@@ -126,7 +126,7 @@ class Stage5VideoCompositionService:
             "-i", image_path,
             "-c:v", "libx264",
             "-pix_fmt", "yuv420p",
-            "-vf", "scale=1920:1080",
+            "-vf", "scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2:black",
             output_path,
         ]
         

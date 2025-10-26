@@ -7,6 +7,50 @@
 
 Big Niu 是一个基于 AI 的智能动漫生成系统，能够自动将小说文本转换为包含画面、配音和字幕的动漫视频。本项目为七牛云 Hackathon 参赛作品。
 
+## Demo样例
+
+### 输入文本示例
+
+以下是一个基于《三体》小说的输入文本示例：
+
+```
+深夜，汪淼站在窗前，望着天空中闪烁的星星。最近几天，他总是被一些奇怪的现象困扰着。每当他闭上眼睛，就会看到一串神秘的数字在眼前跳动。
+
+"这到底是什么？"汪淼自言自语道，额头上渗出了细密的汗珠。
+
+第二天，汪淼来到实验室，决定用科学的方法来解开这个谜团。他打开了显微镜，但令他震惊的是，在镜头里，那串数字再次出现了。
+
+"不可能！"他惊呼道。
+
+就在这时，他的助手小李走了进来。"汪教授，您今天看起来不太好。"
+
+"我遇到了一些奇怪的事情。"汪淼说着，将最近的异常告诉了小李。
+
+小李听完后，脸色变得凝重："汪教授，我建议您去见一个人。她叫叶文洁，是红岸基地的前工程师。"
+
+几天后，汪淼驱车来到了郊外的一座老房子前。门开了，一位满头银发但目光深邃的老人站在门口。
+
+"叶文洁教授，我是汪淼。"他说道。
+
+"我知道你会来。"叶文洁平静地说，"进来吧，有些事情，是时候让你知道了。"
+
+房间里，叶文洁给汪淼倒了一杯茶，然后缓缓开口："这个宇宙，远比你想象的要复杂。"
+
+汪淼听着叶文洁讲述的故事，关于红岸基地，关于向太空发送的信号，关于那个来自遥远星系的回应。他感到自己的世界观正在崩塌。
+
+"所以，那串数字是..."汪淼的声音颤抖着。
+
+"是倒计时。"叶文洁说，"三体文明正在接近地球。"
+```
+
+### 生成视频示例
+
+基于上述文本生成的动漫视频：
+
+📹 **[观看生成的动漫视频](https://private-user-images.githubusercontent.com/87413265/505683020-a2a169d0-4ef7-42a7-a8a1-7d9ea4c54db2.mp4?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NjE0NDk0OTMsIm5iZiI6MTc2MTQ0OTE5MywicGF0aCI6Ii84NzQxMzI2NS81MDU2ODMwMjAtYTJhMTY5ZDAtNGVmNy00MmE3LWE4YTEtN2Q5ZWE0YzU0ZGIyLm1wND9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNTEwMjYlMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjUxMDI2VDAzMjYzM1omWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTZhYTc4YWM1ZWI0YmRkZDc5ZjQ4MGFiMDA5NDUzODMwN2M0NTQ5YTAyZTg1YjI3N2EwMDZlZDEzYzRjOTQ0N2QmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.6ZFJzZVlmtnMG0BWuMEMSRFjT5u-BXPulWtAud6PiOU)**
+
+*注：该视频展示了系统如何将小说文本转换为包含角色对话、场景画面、配音和字幕的完整动漫视频。*
+
 ### 核心功能
 
 - **智能角色生成**：基于小说描述自动生成角色形象，并在整个动漫中保持角色一致性
