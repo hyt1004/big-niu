@@ -119,7 +119,36 @@ big-niu/
 
 - **Node.js**: >= 18.0.0
 - **Python**: >= 3.10
+- **FFmpeg**: 用于视频处理
 - **Docker**: >= 20.0 (可选)
+
+### 一键启动（推荐）
+
+使用提供的启动脚本可以快速启动前后端服务：
+
+```bash
+# 给脚本添加执行权限（首次使用需要）
+chmod +x big_niu_run.sh
+
+# 运行启动脚本
+./big_niu_run.sh
+```
+
+脚本会自动完成以下操作：
+1. 检查环境（Python、Node.js、FFmpeg）
+2. 创建必要的目录结构
+3. 生成默认的 `.env` 配置文件（如果不存在）
+4. 安装前后端依赖
+5. 同时启动前后端服务
+
+启动成功后：
+- 前端界面: http://localhost:5173
+- 后端 API: http://localhost:8000
+- API 文档: http://localhost:8000/docs
+
+按 `Ctrl+C` 可停止所有服务。
+
+**注意**: 首次运行时，请编辑 `backend/.env` 文件，填入真实的 API 密钥。
 
 ### 前端安装
 
