@@ -4,12 +4,31 @@ from .client_session import session_manager
 from .stub_func import StubFunctions
 import json
 from pathlib import Path
+import asyncio
 
 router = APIRouter(prefix="/novel", tags=["小说提交"])
 
 
 def get_storyboard_file(client_id: str) -> Path:
     return Path(f"configs/clients/{client_id}/storyboard.json")
+
+
+async def trigger_video_generation(client_id: str):
+    """异步触发视频生成"""
+    try:
+        # 导入视频生成相关模块
+        from .video_management import generate_video
+        from .schemas import VideoGenerationRequest
+        
+        # 创建视频生成请求
+        request = VideoGenerationRequest(storyboard_enabled=True)
+        
+        # 异步调用视频生成
+        await generate_video(client_id, request)
+        
+        print(f"Video generation triggered for client {client_id}")
+    except Exception as e:
+        print(f"Failed to trigger video generation for client {client_id}: {e}")
 
 
 @router.post("/submit/{client_id}", response_model=NovelSubmissionResponse)
@@ -40,6 +59,9 @@ async def submit_novel(client_id: str, novel: NovelTextData):
                 
                 processed = True
                 
+                # 异步触发视频生成
+                asyncio.create_task(trigger_video_generation(client_id))
+                
                 StubFunctions.save_processing_log(
                     client_id,
                     "novel_submission",
@@ -47,7 +69,8 @@ async def submit_novel(client_id: str, novel: NovelTextData):
                     {
                         "title": novel.title,
                         "text_length": text_length,
-                        "storyboard_generated": True
+                        "storyboard_generated": True,
+                        "video_generation_triggered": True
                     }
                 )
         

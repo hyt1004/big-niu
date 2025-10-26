@@ -93,3 +93,16 @@ export interface NovelInputData {
   text: string;
   file?: File;
 }
+
+export interface UserPrompt {
+  prompt_text: string;
+  category?: string;
+  tags: string[];
+}
+
+export interface VideoStatusResponse {
+  success: boolean;
+  message: string;
+  has_video: boolean;
+  video_info?: any;
+}
