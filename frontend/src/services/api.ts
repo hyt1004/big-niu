@@ -232,6 +232,19 @@ class ApiService {
     }
   }
 
+  async getStoryboardExamples(): Promise<any[]> {
+    try {
+      const response = await this.axiosInstance.get<any>(
+        '/api/v1/bigniu/storyboard/examples'
+      );
+      
+      return response.data.success ? response.data.examples || [] : [];
+    } catch (error) {
+      console.error('Failed to get storyboard examples:', error);
+      return [];
+    }
+  }
+
   async saveStoryboard(storyboard: StoryboardTable): Promise<boolean> {
     if (!this.clientId) throw new Error('Client not registered');
 

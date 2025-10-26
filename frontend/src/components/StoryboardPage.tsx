@@ -6,12 +6,14 @@ interface StoryboardPageProps {
   storyboard: StoryboardTable;
   onClose: () => void;
   onSave: (storyboard: StoryboardTable) => void;
+  isExample?: boolean;
 }
 
 const StoryboardPage: React.FC<StoryboardPageProps> = ({
   storyboard,
   onClose,
   onSave,
+  isExample = false,
 }) => {
   const [editedCells, setEditedCells] = useState<StoryboardCell[]>([]);
 
@@ -145,11 +147,13 @@ const StoryboardPage: React.FC<StoryboardPageProps> = ({
 
         <div className="storyboard-page-footer">
           <button className="btn-cancel" onClick={onClose}>
-            取消
+            {isExample ? '关闭' : '取消'}
           </button>
-          <button className="btn-save-storyboard" onClick={handleSave}>
-            保存并生成视频
-          </button>
+          {!isExample && (
+            <button className="btn-save-storyboard" onClick={handleSave}>
+              保存并生成视频
+            </button>
+          )}
         </div>
       </div>
     </div>

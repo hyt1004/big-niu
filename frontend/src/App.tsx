@@ -36,6 +36,7 @@ function App() {
   const [storyboardLoading, setStoryboardLoading] = useState(false);
   const [storyboardSaving, setStoryboardSaving] = useState(false);
   const [isExampleStoryboard, setIsExampleStoryboard] = useState(false);
+  const [exampleStoryboardData, setExampleStoryboardData] = useState<StoryboardTable | null>(null);
   
   const [currentStep, setCurrentStep] = useState(1);
 
@@ -64,6 +65,12 @@ function App() {
     video_bitrate: 2000,
   });
 
+  const showMessage = (message: string, type: 'success' | 'error' | 'info' | 'warning' = 'info') => {
+    setToastMessage(message);
+    setToastType(type);
+    setShowToast(true);
+  };
+
   useEffect(() => {
     const initializeClient = async () => {
       setConnectionStatus(ConnectionStatus.CONNECTING);
@@ -71,11 +78,15 @@ function App() {
         const client = await apiService.registerClient();
         setClientId(client.client_id);
         setConnectionStatus(ConnectionStatus.CONNECTED);
-        showMessage('客户端连接成功', 'success');
+        setTimeout(() => {
+          showMessage('客户端连接成功', 'success');
+        }, 100);
       } catch (error) {
         console.error('Failed to register client:', error);
         setConnectionStatus(ConnectionStatus.ERROR);
-        showMessage('客户端连接失败', 'error');
+        setTimeout(() => {
+          showMessage('客户端连接失败', 'error');
+        }, 100);
       }
     };
 
@@ -96,13 +107,6 @@ function App() {
       apiService.disconnect();
     };
   }, []);
-
-
-  const showMessage = (message: string, type: 'success' | 'error' | 'info' | 'warning' = 'info') => {
-    setToastMessage(message);
-    setToastType(type);
-    setShowToast(true);
-  };
   
   const hideToast = () => {
     setShowToast(false);
@@ -466,9 +470,20 @@ function App() {
             </div>
             <button 
               className="example-btn"
-              onClick={() => {
-                setIsExampleStoryboard(true);
-                setShowStoryboardPage(true);
+              onClick={async () => {
+                try {
+                  const examples = await apiService.getStoryboardExamples();
+                  if (examples.length > 0) {
+                    setIsExampleStoryboard(true);
+                    setShowStoryboardPage(true);
+                    setExampleStoryboardData(examples[0].data);
+                  } else {
+                    showMessage('没有可用的分镜表示例', 'warning');
+                  }
+                } catch (error) {
+                  console.error('Failed to get storyboard examples:', error);
+                  showMessage('获取分镜表示例失败', 'error');
+                }
               }}
             >
               <span className="example-icon">📋</span>
@@ -549,11 +564,16 @@ function App() {
         </div>
       )}
 
-      {showStoryboardPage && storyboardData && (
+      {showStoryboardPage && (
         <StoryboardPage
-          storyboard={storyboardData}
-          onClose={() => setShowStoryboardPage(false)}
+          storyboard={isExampleStoryboard ? (exampleStoryboardData || { rows: 0, columns: 0, cells: [] }) : (storyboardData || { rows: 0, columns: 0, cells: [] })}
+          onClose={() => {
+            setShowStoryboardPage(false);
+            setIsExampleStoryboard(false);
+            setExampleStoryboardData(null);
+          }}
           onSave={handleStoryboardPageSave}
+          isExample={isExampleStoryboard}
         />
       )}
 
