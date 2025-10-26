@@ -46,8 +46,9 @@ Big Niu 是一个基于 AI 的智能动漫生成系统，能够自动将小说�
 ### 生成视频示例
 
 基于上述文本生成的动漫视频：
+https://github.com/user-attachments/assets/a2a169d0-4ef7-42a7-a8a1-7d9ea4c54db2
 
-![观看生成的动漫视频](https://github-production-user-asset-6210df.s3.amazonaws.com/87413265/505683020-a2a169d0-4ef7-42a7-a8a1-7d9ea4c54db2.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAVCODYLSA53PQK4ZA%2F20251026%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20251026T033030Z&X-Amz-Expires=300&X-Amz-Signature=d677c8422519484517908d4fb0e4beaf9c37e07b47d658b5ca7afc83886c7266&X-Amz-SignedHeaders=host)
+📹 https://github-production-user-asset-6210df.s3.amazonaws.com/87413265/505683020-a2a169d0-4ef7-42a7-a8a1-7d9ea4c54db2.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAVCODYLSA53PQK4ZA%2F20251026%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20251026T033030Z&X-Amz-Expires=300&X-Amz-Signature=d677c8422519484517908d4fb0e4beaf9c37e07b47d658b5ca7afc83886c7266&X-Amz-SignedHeaders=host
 
 *注：该视频展示了系统如何将小说文本转换为包含角色对话、场景画面、配音和字幕的完整动漫视频。*
 
