@@ -1,0 +1,88 @@
+{
+  "prompts": [
+    {
+      "scene_id": "scene_001",
+      "image_prompt": "Masterpiece, best quality, highly detailed, 4k, ultra sharp, anime style, illustration, cinematic lighting. Late at night in a dimly lit interior room, tense and mysterious atmosphere, dim yellowish indoor lighting casting soft shadows, simple furniture in the background. Dark night sky outside the window with twinkling stars visible. Medium shot, eye-level camera angle, focusing on the figure of Wang Miao and the stars outside the window. Wang Miao: middle-aged man, around 40 years old, medium build, wearing a white lab coat, short disheveled hair, fine sweat beads on his face, anxious and confused expression, wearing glasses, standing by the window gazing at the stars, subtle hint of mysterious numbers faintly visualized in the air around him.",
+      "negative_prompt": "low quality, blurry, deformed, extra limbs, ugly, duplicate, mutilated, disfigured, mutation, poorly drawn face, bad anatomy, watermark, text, signature, extra characters, low resolution, artifacts, noise.",
+      "style_tags": [
+        "anime",
+        "high_quality",
+        "4k",
+        "cinematic_lighting",
+        "illustration"
+      ],
+      "characters_in_scene": [
+        "char_001"
+      ]
+    },
+    {
+      "scene_id": "scene_002",
+      "image_prompt": "A close-up shot in a daytime laboratory environment, eye-level lens focusing on Wang Miao's face and the microscope lens, Wang Miao is a middle-aged man in his 40s, average build, wearing a white lab coat, short disheveled hair, glasses, fine beads of sweat on his face, anxious and puzzled expression, bending over operating the microscope on the table, sunlight streaming through the window illuminating the scene, surrounded by scientific equipment like beakers and monitors, shocked atmosphere, anime style, illustration, cinematic lighting, masterpiece, best quality, highly detailed, 4k, ultra sharp, photorealistic elements blended with anime aesthetic",
+      "negative_prompt": "low quality, deformed, blurry, extra limbs, multiple heads, ugly, poorly drawn hands, mutated, distorted face, bad anatomy, cartoonish, low resolution, watermark, text, signature",
+      "style_tags": [
+        "anime",
+        "high_quality",
+        "4k"
+      ],
+      "characters_in_scene": [
+        "char_001"
+      ]
+    },
+    {
+      "scene_id": "scene_003",
+      "image_prompt": "A medium shot in anime style, eye level view, capturing the conversational interaction between Wang Miao and Xiao Li in a brightly lit laboratory interior. Wang Miao is a middle-aged man in his forties, wearing a white lab coat, with slightly messy short hair, fine sweat beads on his face, anxious and puzzled expression, medium build, wearing glasses, turning to face Xiao Li. Xiao Li is a young man in his twenties, wearing a plain shirt and pants, neat black hair, handsome and serious expression, slender build, entering the room. Background features various laboratory equipment. Bright, illuminating lighting creates a dialogue-oriented atmosphere. Masterpiece, best quality, highly detailed, 4k, ultra sharp, cinematic lighting, illustration.",
+      "negative_prompt": "low quality, blurry, deformed, extra limbs, ugly, poorly drawn hands, disfigured, watermark, text, extra characters, distorted faces, low resolution, artifacts",
+      "style_tags": [
+        "anime",
+        "high_quality",
+        "4k"
+      ],
+      "characters_in_scene": [
+        "char_001",
+        "char_002"
+      ]
+    },
+    {
+      "scene_id": "scene_004",
+      "image_prompt": "Interior of a modern laboratory with experimental benches and scientific equipment in the background, stable overhead lighting creating a serious and tense atmosphere, medium shot from eye level focusing on the faces of two men standing face-to-face, the man on the left is Wang Miao, a middle-aged man in his forties wearing a white lab coat, short disheveled hair, fine beads of sweat on his face, anxious and confused expression, medium build, wearing glasses, the man on the right is Xiao Li, a young man in his twenties wearing an ordinary shirt and pants, neat black hair, handsome features, serious expression, slender build, Wang Miao is speaking to Xiao Li, who has a grave look after listening, realistic details in facial expressions and clothing, anime style illustration, cinematic lighting with subtle shadows, masterpiece, best quality, highly detailed, 4k resolution, ultra sharp focus, vibrant colors, dynamic composition",
+      "negative_prompt": "low quality, blurry, deformed faces, extra limbs, poorly drawn hands, ugly, disfigured, watermark, text, logo, low resolution, artifacts, noise, distorted proportions",
+      "style_tags": [
+        "anime",
+        "high_quality",
+        "4k"
+      ],
+      "characters_in_scene": [
+        "char_001",
+        "char_002"
+      ]
+    },
+    {
+      "scene_id": "scene_005",
+      "image_prompt": "A suburban old house with weathered facade and overgrown surroundings under bright, sunny daylight, creating a mysterious and atmospheric mood. Wang Miao, a middle-aged man in his forties, medium build, wearing a white lab coat with slightly messy short hair, fine sweat beads on his face, anxious and puzzled expression, wearing glasses, walking towards the front door from a parked car. Ye Wenjie, an elderly woman with full silver hair, deep and sharp gaze, wearing simple and plain clothes, showing signs of age on her face, slender figure, dignified aura, standing at the open doorway greeting him. Mid-shot to wide-shot composition, eye-level view, first showing the overall house then focusing on the doorway. Masterpiece, best quality, highly detailed, 4K resolution, ultra sharp focus, cinematic lighting, realistic style, atmospheric illustration.",
+      "negative_prompt": "blurry, lowres, bad anatomy, bad hands, deformed hands, extra limbs, fewer limbs, missing fingers, extra fingers, mutated hands, bad proportions, distorted face, ugly, duplicate, mutilated, mutation, disfigured, gross proportions, text, error, watermark, signature, username, jpeg artifacts, cropped, low quality, worst quality, normal quality.",
+      "style_tags": [
+        "realistic",
+        "high_quality",
+        "4k"
+      ],
+      "characters_in_scene": [
+        "char_001",
+        "char_003"
+      ]
+    },
+    {
+      "scene_id": "scene_006",
+      "image_prompt": "In an old house interior, a teacup placed on a wooden table, warm sunlight streaming through a window, casting soft shadows and highlighting dust particles in the air, Ye Wenjie, an elderly woman with full silver hair, wearing simple and plain clothes, with deep and sharp gaze, facial lines etched by time, slender build, dignified aura, sitting calmly opposite Wang Miao, a middle-aged man in his forties, wearing a white lab coat, short tousled hair, fine beads of sweat on his face, anxious and bewildered expression, medium build, wearing glasses; they are in a medium shot from eye-level perspective, focusing on their faces and the teacup, somber and profound atmosphere, cinematic lighting with warm golden hues, realistic style illustration, highly detailed textures on faces and clothing, masterful composition, masterpiece, best quality, highly detailed, 4k resolution, ultra sharp focus, intricate details",
+      "negative_prompt": "low quality, deformed, blurry, extra limbs, bad anatomy, ugly, poorly drawn faces, distorted proportions, extra fingers, mutated hands, disfigured, low resolution, artifacts, watermark, text, signature",
+      "style_tags": [
+        "realistic",
+        "high_quality",
+        "4k"
+      ],
+      "characters_in_scene": [
+        "char_001",
+        "char_003"
+      ]
+    }
+  ]
+}
