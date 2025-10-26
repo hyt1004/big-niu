@@ -1,0 +1,150 @@
+{
+  "metadata": {
+    "total_scenes": 6,
+    "story_title": "神秘的倒计时",
+    "total_characters": 3
+  },
+  "characters": [
+    {
+      "id": "char_001",
+      "name": "汪淼",
+      "description": "中年男子，四十多岁，穿着白色实验室外套，短发略显凌乱，脸上有细密的汗珠，表情焦虑而困惑，身材中等，戴着眼镜",
+      "personality": "好奇、理智但易焦虑，科学家性格"
+    },
+    {
+      "id": "char_002",
+      "name": "小李",
+      "description": "年轻男性，二十多岁，穿着普通衬衫和裤子，黑发整齐，面容清秀，表情凝重，身材瘦长",
+      "personality": "谨慎、关心助手，略显严肃"
+    },
+    {
+      "id": "char_003",
+      "name": "叶文洁",
+      "description": "老年女性，满头银发，穿着简单朴素的衣服，目光深邃锐利，脸上有岁月的痕迹，身材瘦削，气质庄严",
+      "personality": "智慧、平静、神秘，经历丰富"
+    }
+  ],
+  "scenes": [
+    {
+      "scene_id": "scene_001",
+      "order": 1,
+      "description": "深夜的室内房间，窗外漆黑夜空闪烁着星星，室内灯光昏黄，汪淼站在窗前，背景是简单的家具，氛围紧张而神秘",
+      "composition": "中景，平视镜头，聚焦汪淼的身影和窗外星星",
+      "characters": [
+        "char_001"
+      ],
+      "narration": "深夜，汪淼站在窗前，望着天空中闪烁的星星。最近几天，他总是被一些奇怪的现象困扰着。每当他闭上眼睛，就会看到一串神秘的数字在眼前跳动。",
+      "dialogues": [
+        {
+          "character": "char_001",
+          "text": "这到底是什么？",
+          "emotion": "困惑"
+        }
+      ]
+    },
+    {
+      "scene_id": "scene_002",
+      "order": 2,
+      "description": "白天实验室环境，显微镜放在桌上，阳光透过窗户洒入，汪淼俯身操作仪器，周围有科学设备，氛围震惊",
+      "composition": "特写，平视镜头，聚焦汪淼的脸和显微镜镜头",
+      "characters": [
+        "char_001"
+      ],
+      "narration": "第二天，汪淼来到实验室，决定用科学的方法来解开这个谜团。他打开了显微镜，但令他震惊的是，在镜头里，那串数字再次出现了。",
+      "dialogues": [
+        {
+          "character": "char_001",
+          "text": "不可能！",
+          "emotion": "震惊"
+        }
+      ]
+    },
+    {
+      "scene_id": "scene_003",
+      "order": 3,
+      "description": "实验室室内，小李走进来，背景是实验设备，灯光明亮，汪淼转身面对小李，氛围对话性",
+      "composition": "中景，平视镜头，捕捉两人互动",
+      "characters": [
+        "char_001",
+        "char_002"
+      ],
+      "narration": "就在这时，他的助手小李走了进来。",
+      "dialogues": [
+        {
+          "character": "char_002",
+          "text": "汪教授，您今天看起来不太好。",
+          "emotion": "关心"
+        },
+        {
+          "character": "char_001",
+          "text": "我遇到了一些奇怪的事情。",
+          "emotion": "焦虑"
+        }
+      ]
+    },
+    {
+      "scene_id": "scene_004",
+      "order": 4,
+      "description": "实验室室内，汪淼和小李面对面站着，背景实验台，灯光稳定，氛围严肃",
+      "composition": "中景，平视镜头，聚焦两人脸部",
+      "characters": [
+        "char_001",
+        "char_002"
+      ],
+      "narration": "汪淼说着，将最近的异常告诉了小李。小李听完后，脸色变得凝重。",
+      "dialogues": [
+        {
+          "character": "char_002",
+          "text": "汪教授，我建议您去见一个人。她叫叶文洁，是红岸基地的前工程师。",
+          "emotion": "凝重"
+        }
+      ]
+    },
+    {
+      "scene_id": "scene_005",
+      "order": 5,
+      "description": "郊外老房子前，阳光明媚，汪淼驱车停下，走近大门，叶文洁开门迎接，房子古旧，氛围神秘",
+      "composition": "远景到中景，平视镜头，先展示房子整体，再聚焦门口",
+      "characters": [
+        "char_001",
+        "char_003"
+      ],
+      "narration": "几天后，汪淼驱车来到了郊外的一座老房子前。门开了，一位满头银发但目光深邃的老人站在门口。",
+      "dialogues": [
+        {
+          "character": "char_001",
+          "text": "叶文洁教授，我是汪淼。",
+          "emotion": "紧张"
+        },
+        {
+          "character": "char_003",
+          "text": "我知道你会来。进来吧，有些事情，是时候让你知道了。",
+          "emotion": "平静"
+        }
+      ]
+    },
+    {
+      "scene_id": "scene_006",
+      "order": 6,
+      "description": "老房子室内，茶杯放在桌上，阳光透过窗户，叶文洁和汪淼相对而坐，氛围深沉",
+      "composition": "中景，平视镜头，聚焦两人面部和茶杯",
+      "characters": [
+        "char_001",
+        "char_003"
+      ],
+      "narration": "房间里，叶文洁给汪淼倒了一杯茶，然后缓缓开口：这个宇宙，远比你想象的要复杂。汪淼听着叶文洁讲述的故事，关于红岸基地，关于向太空发送的信号，关于那个来自遥远星系的回应。他感到自己的世界观正在崩塌。",
+      "dialogues": [
+        {
+          "character": "char_001",
+          "text": "所以，那串数字是...",
+          "emotion": "颤抖"
+        },
+        {
+          "character": "char_003",
+          "text": "是倒计时。三体文明正在接近地球。",
+          "emotion": "严肃"
+        }
+      ]
+    }
+  ]
+}

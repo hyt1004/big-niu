@@ -1,0 +1,27 @@
+{
+  "task_id": "task_20251026_104113_677d264a",
+  "task_name": "mock_input_threebody",
+  "created_at": "2025-10-26T10:41:13.652329",
+  "status": "failed",
+  "stages": {
+    "stage1": {
+      "status": "completed",
+      "updated_at": "2025-10-26T10:41:26.235932",
+      "output_file": "output/tasks/task_20251026_104113_677d264a/stage1/output.json",
+      "scenes_count": 6,
+      "characters_count": 3
+    },
+    "stage2": {
+      "status": "completed",
+      "updated_at": "2025-10-26T10:42:10.386230",
+      "output_file": "output/tasks/task_20251026_104113_677d264a/stage2/output.json",
+      "prompts_count": 6
+    },
+    "stage3": {
+      "status": "running",
+      "updated_at": "2025-10-26T10:42:10.387011"
+    }
+  },
+  "error": "API Error 403: {\"error\":{\"message\":\"Provider returned error\",\"code\":403,\"metadata\":{\"raw\":\"{\\\"error\\\":{\\\"code\\\":\\\"unsupported_country_region_territory\\\",\\\"message\\\":\\\"Country, region, or territory not supported\\\",\\\"param\\\":null,\\\"type\\\":\\\"request_forbidden\\\"}}\",\"provider_name\":\"OpenAI\"}},\"user_id\":\"user_2zDB5fQyrzzfN3fNS580NmLBAeN\"}",
+  "failed_at": "2025-10-26T10:42:11.488160"
+}
