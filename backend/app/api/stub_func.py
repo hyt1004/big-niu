@@ -9,8 +9,38 @@ class StubFunctions:
     
     @staticmethod
     async def generate_storyboard_from_text(text: str, client_id: str) -> Dict[str, Any]:
+        """从test_data目录获取分镜表数据"""
         await asyncio.sleep(0.5)
         
+        # 尝试从test_data目录获取分镜表数据
+        test_data_dir = Path("test_data/storyboards")
+        
+        if test_data_dir.exists():
+            # 随机选择一个示例文件
+            storyboard_files = list(test_data_dir.glob("*.json"))
+            if storyboard_files:
+                import random
+                selected_file = random.choice(storyboard_files)
+                
+                try:
+                    with open(selected_file, 'r', encoding='utf-8') as f:
+                        storyboard_data = json.load(f)
+                    
+                    # 将相对路径转换为绝对路径
+                    for cell in storyboard_data.get("cells", []):
+                        if cell.get("scene_image") and cell["scene_image"].startswith("/api/"):
+                            cell["scene_image"] = f"http://localhost:8000{cell['scene_image']}"
+                    
+                    return {
+                        "success": True,
+                        "message": f"分镜表生成成功 (来自 {selected_file.name})",
+                        "status_code": 0,
+                        "data": storyboard_data
+                    }
+                except Exception as e:
+                    print(f"Error loading storyboard from {selected_file}: {e}")
+        
+        # 如果无法从文件加载，使用默认数据
         storyboard = {
             "rows": 3,
             "columns": 6,
@@ -71,8 +101,31 @@ class StubFunctions:
     
     @staticmethod
     async def generate_audio_from_text(text: str, client_id: str, audio_config: Dict[str, Any]) -> str:
+        """从test_data目录获取音频文件"""
         await asyncio.sleep(0.8)
         
+        # 尝试从test_data目录获取音频文件
+        test_data_dir = Path("test_data/audio")
+        
+        if test_data_dir.exists():
+            audio_files = list(test_data_dir.glob("*.mp3"))
+            if audio_files:
+                # 复制测试音频到客户端目录
+                client_audio_dir = Path(f"configs/clients/{client_id}/audio")
+                client_audio_dir.mkdir(parents=True, exist_ok=True)
+                
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                audio_filename = f"audio_{client_id}_{timestamp}.{audio_config.get('audio_format', 'mp3')}"
+                target_path = client_audio_dir / audio_filename
+                
+                try:
+                    import shutil
+                    shutil.copy2(audio_files[0], target_path)
+                    return audio_filename
+                except Exception as e:
+                    print(f"Error copying audio file: {e}")
+        
+        # 如果无法从文件获取，返回默认文件名
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         audio_filename = f"audio_{client_id}_{timestamp}.{audio_config.get('audio_format', 'mp3')}"
         
@@ -84,8 +137,31 @@ class StubFunctions:
         client_id: str, 
         model_config: Dict[str, Any]
     ) -> str:
+        """从test_data目录获取视频文件"""
         await asyncio.sleep(2.0)
         
+        # 尝试从test_data目录获取视频文件
+        test_data_dir = Path("test_data/videos")
+        
+        if test_data_dir.exists():
+            video_files = list(test_data_dir.glob("*.mp4"))
+            if video_files:
+                # 复制测试视频到客户端目录
+                client_videos_dir = Path(f"configs/clients/{client_id}/videos")
+                client_videos_dir.mkdir(parents=True, exist_ok=True)
+                
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                video_filename = f"video_{client_id}_{timestamp}.mp4"
+                target_path = client_videos_dir / video_filename
+                
+                try:
+                    import shutil
+                    shutil.copy2(video_files[0], target_path)
+                    return video_filename
+                except Exception as e:
+                    print(f"Error copying video file: {e}")
+        
+        # 如果无法从文件获取，返回默认文件名
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         video_filename = f"video_{client_id}_{timestamp}.{model_config.get('video_format', 'mp4')}"
         
@@ -97,6 +173,21 @@ class StubFunctions:
         
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         final_video = f"final_video_{client_id}_{timestamp}.mp4"
+        
+        # 实际复制视频文件到最终位置
+        client_videos_dir = Path(f"configs/clients/{client_id}/videos")
+        source_video_path = client_videos_dir / video_filename
+        final_video_path = client_videos_dir / final_video
+        
+        try:
+            import shutil
+            if source_video_path.exists():
+                shutil.copy2(source_video_path, final_video_path)
+                print(f"Combined video created: {final_video}")
+            else:
+                print(f"Source video not found: {source_video_path}")
+        except Exception as e:
+            print(f"Error creating final video: {e}")
         
         return final_video
     

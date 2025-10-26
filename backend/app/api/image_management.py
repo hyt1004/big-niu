@@ -13,7 +13,7 @@ def get_images_dir(client_id: str) -> Path:
 
 
 def get_test_images_dir() -> Path:
-    return Path("configs/test_data/images")
+    return Path("test_data/images")
 
 
 @router.get("/{client_id}", response_model=ImageListResponse)

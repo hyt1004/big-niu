@@ -1,6 +1,7 @@
 import json
 import time
 from pathlib import Path
+from datetime import datetime
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import FileResponse
 from .schemas import (
@@ -79,7 +80,27 @@ async def generate_video(client_id: str, request: VideoGenerationRequest):
             model_config
         )
         
-        final_video = await StubFunctions.combine_video_audio(
+        # 确定最终视频文件名
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        final_video = f"final_video_{client_id}_{timestamp}.mp4"
+        
+        # 复制视频文件到最终位置
+        client_videos_dir = get_videos_dir(client_id)
+        source_video_path = client_videos_dir / video_filename
+        final_video_path = client_videos_dir / final_video
+        
+        try:
+            import shutil
+            if source_video_path.exists():
+                shutil.copy2(source_video_path, final_video_path)
+                print(f"Final video created: {final_video}")
+            else:
+                print(f"Source video not found: {source_video_path}")
+        except Exception as e:
+            print(f"Error creating final video: {e}")
+        
+        # 调用combine_video_audio（现在只是模拟音频合并）
+        await StubFunctions.combine_video_audio(
             video_filename,
             audio_filename,
             client_id
