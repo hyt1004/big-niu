@@ -57,7 +57,7 @@ class ApiService {
     try {
       const response = await this.axiosInstance.post<any>(
         '/api/v1/bigniu/client/register',
-        {}
+        { client_name: 'Big Niu Frontend' }
       );
       
       if (response.data.success) {
