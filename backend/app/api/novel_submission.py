@@ -42,41 +42,49 @@ async def submit_novel(client_id: str, novel: NovelTextData):
         if text_length > 1000000:
             raise HTTPException(status_code=400, detail="文本长度超过限制（最大100万字）")
         
-        processed = False
+        # 无论是否启用分镜表调整，都生成分镜表和视频
+        # 区别在于：启用时用户可以编辑分镜表，不启用时直接生成视频
+        result = await StubFunctions.generate_storyboard_from_text(
+            novel.text,
+            client_id
+        )
         
-        if novel.storyboard_enabled:
-            result = await StubFunctions.generate_storyboard_from_text(
-                novel.text,
-                client_id
-            )
+        processed = False
+        if result.get("success"):
+            storyboard_file = get_storyboard_file(client_id)
+            storyboard_file.parent.mkdir(parents=True, exist_ok=True)
             
-            if result.get("success"):
-                storyboard_file = get_storyboard_file(client_id)
-                storyboard_file.parent.mkdir(parents=True, exist_ok=True)
-                
-                with open(storyboard_file, 'w', encoding='utf-8') as f:
-                    json.dump(result.get("data"), f, indent=2, ensure_ascii=False)
-                
-                processed = True
-                
-                # 异步触发视频生成
-                asyncio.create_task(trigger_video_generation(client_id))
-                
-                StubFunctions.save_processing_log(
-                    client_id,
-                    "novel_submission",
-                    "success",
-                    {
-                        "title": novel.title,
-                        "text_length": text_length,
-                        "storyboard_generated": True,
-                        "video_generation_triggered": True
-                    }
-                )
+            with open(storyboard_file, 'w', encoding='utf-8') as f:
+                json.dump(result.get("data"), f, indent=2, ensure_ascii=False)
+            
+            # 标记是否需要用户编辑分镜表
+            processed = novel.storyboard_enabled
+            
+            # 异步触发视频生成
+            asyncio.create_task(trigger_video_generation(client_id))
+            
+            StubFunctions.save_processing_log(
+                client_id,
+                "novel_submission",
+                "success",
+                {
+                    "title": novel.title,
+                    "text_length": text_length,
+                    "storyboard_generated": True,
+                    "storyboard_editable": novel.storyboard_enabled,
+                    "video_generation_triggered": True
+                }
+            )
+        
+        # 根据是否启用分镜表调整生成不同的message
+        if processed:
+            message = "小说提交成功，分镜表已生成（功能开发中，使用测试数据）"
+        else:
+            message = "小说提交成功，视频生成中（功能开发中，使用测试数据）"
         
         return NovelSubmissionResponse(
             success=True,
-            message="小说提交成功" + ("，分镜表已生成" if processed else ""),
+            message=message,
             text_length=text_length,
             processed=processed
         )

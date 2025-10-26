@@ -112,7 +112,7 @@ async def save_storyboard(client_id: str, storyboard: StoryboardTable):
         
         return StoryboardResponse(
             success=True,
-            message="分镜表保存成功,视频生成已开始",
+            message="分镜表保存成功，视频生成已开始（功能开发中，使用测试数据）",
             data=storyboard_dict
         )
     

@@ -11,7 +11,8 @@
   max-width: 500px;
   position: fixed;
   top: 100px;
-  right: 20px;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 1000;
   overflow: hidden;
 }
@@ -114,11 +115,11 @@
 
 @keyframes slideIn {
   from {
-    transform: translateX(100%);
+    transform: translateX(-50%) translateY(-20px);
     opacity: 0;
   }
   to {
-    transform: translateX(0);
+    transform: translateX(-50%) translateY(0);
     opacity: 1;
   }
 }
@@ -127,6 +128,7 @@
   .message-toast {
     min-width: auto;
     max-width: calc(100vw - 32px);
-    margin: 0 16px;
+    left: 50%;
+    transform: translateX(-50%);
   }
 }
